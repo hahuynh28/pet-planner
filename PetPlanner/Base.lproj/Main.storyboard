@@ -167,27 +167,26 @@
                                                     <rect key="frame" x="2" y="8" width="349" height="87.666666666666671"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Medication: Apoquel" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2TP-Sh-ABC">
-                                                            <rect key="frame" x="136.66666666666663" y="12" width="200.33333333333337" height="19.333333333333329"/>
+                                                            <rect key="frame" x="84" y="12" width="253" height="19.333333333333329"/>
                                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
-                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Reg-F3-3Gm">
-                                                            <rect key="frame" x="12.000000000000007" y="-2.999999999981469" width="112.66666666666669" height="127.99999999997772"/>
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Reg-F3-3Gm">
+                                                            <rect key="frame" x="12" y="14" width="60" height="60"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="width" constant="60" id="IUt-BH-ry9"/>
-                                                                <constraint firstAttribute="height" constant="60" id="ZfH-IA-3fH"/>
-                                                                <constraint firstAttribute="width" secondItem="Reg-F3-3Gm" secondAttribute="height" multiplier="15:8" id="eYq-T8-Beq"/>
+                                                                <constraint firstAttribute="width" constant="60" id="PGA-AY-9bG"/>
+                                                                <constraint firstAttribute="width" secondItem="Reg-F3-3Gm" secondAttribute="height" multiplier="1:1" id="ptb-Qf-h55"/>
                                                             </constraints>
                                                         </imageView>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Milo" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TB6-lE-m4I">
-                                                            <rect key="frame" x="136.66666666666666" y="35.333333333333343" width="25.333333333333343" height="15.666666666666664"/>
+                                                            <rect key="frame" x="84" y="35.333333333333343" width="25.333333333333329" height="15.666666666666664"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                             <color key="textColor" name="TextSecondary"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Wed, Nov 5" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nwR-6A-Rxe">
-                                                            <rect key="frame" x="136.66666666666666" y="59" width="88.333333333333343" height="21"/>
+                                                            <rect key="frame" x="84" y="59" width="88.333333333333314" height="21"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -198,6 +197,7 @@
                                                         <constraint firstItem="2TP-Sh-ABC" firstAttribute="top" secondItem="Y1P-KT-FKZ" secondAttribute="top" constant="12" id="HE5-up-iCh"/>
                                                         <constraint firstAttribute="trailing" secondItem="2TP-Sh-ABC" secondAttribute="trailing" constant="12" id="NGw-5V-b8Z"/>
                                                         <constraint firstItem="Reg-F3-3Gm" firstAttribute="leading" secondItem="Y1P-KT-FKZ" secondAttribute="leading" constant="12" id="NVj-pz-mpm"/>
+                                                        <constraint firstItem="Reg-F3-3Gm" firstAttribute="centerY" secondItem="Y1P-KT-FKZ" secondAttribute="centerY" id="O4I-GR-wlI"/>
                                                         <constraint firstItem="nwR-6A-Rxe" firstAttribute="leading" secondItem="Reg-F3-3Gm" secondAttribute="trailing" constant="12" id="Uuu-WZ-1aW"/>
                                                         <constraint firstItem="nwR-6A-Rxe" firstAttribute="top" secondItem="TB6-lE-m4I" secondAttribute="bottom" constant="4" id="iIP-GJ-7Dm"/>
                                                         <constraint firstAttribute="bottom" secondItem="nwR-6A-Rxe" secondAttribute="bottom" constant="12" id="klP-yr-ndF"/>

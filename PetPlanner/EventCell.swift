@@ -36,6 +36,13 @@ class EventCell: UITableViewCell {
 //        badgeLabel.layer.masksToBounds = true
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        petImageView.layer.cornerRadius = petImageView.bounds.width / 2.0
+        petImageView.clipsToBounds = true
+    }
+    
     // Helper to fill data
     func configure(with event: DashboardViewController.Event) {
         titleLabel.text   = event.title
