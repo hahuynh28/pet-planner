@@ -13,6 +13,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+//        guard let windowScene = (scene as? UIWindowScene) else { return }
+//                
+//        // 1. Set the primary window tint color
+//        if let window = self.window {
+//            window.tintColor = UIColor(named: "BrandPurple")
+//        } else {
+//            // For a newly created window (if not initialized via storyboard)
+//            let window = UIWindow(windowScene: windowScene)
+//            self.window = window
+//            window.tintColor = UIColor(named: "BrandPurple")
+//            // Note: If using Storyboard, the self.window is usually set automatically
+//        }
+//        
+//        // 2. Explicitly set the Tab Bar tint color using the Appearance Proxy
+//        UITabBar.appearance().tintColor = UIColor(named: "BrandPurple")
+        
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
