@@ -164,10 +164,10 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y1P-KT-FKZ">
-                                                    <rect key="frame" x="0.0" y="8" width="353" height="87.666666666666671"/>
+                                                    <rect key="frame" x="2" y="8" width="349" height="87.666666666666671"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Medication: Apoquel" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2TP-Sh-ABC">
-                                                            <rect key="frame" x="136.66666666666663" y="12" width="204.33333333333337" height="19.333333333333329"/>
+                                                            <rect key="frame" x="136.66666666666663" y="12" width="200.33333333333337" height="19.333333333333329"/>
                                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -216,8 +216,8 @@
                                             <constraints>
                                                 <constraint firstItem="Y1P-KT-FKZ" firstAttribute="top" secondItem="nOt-9v-EbO" secondAttribute="top" constant="8" id="XXu-RK-kLj"/>
                                                 <constraint firstAttribute="bottom" secondItem="Y1P-KT-FKZ" secondAttribute="bottom" constant="8" id="gjg-5D-UYD"/>
-                                                <constraint firstAttribute="trailing" secondItem="Y1P-KT-FKZ" secondAttribute="trailing" id="mjC-A3-RRG"/>
-                                                <constraint firstItem="Y1P-KT-FKZ" firstAttribute="leading" secondItem="nOt-9v-EbO" secondAttribute="leading" id="w9x-Iz-Ymi"/>
+                                                <constraint firstAttribute="trailing" secondItem="Y1P-KT-FKZ" secondAttribute="trailing" constant="2" id="mjC-A3-RRG"/>
+                                                <constraint firstItem="Y1P-KT-FKZ" firstAttribute="leading" secondItem="nOt-9v-EbO" secondAttribute="leading" constant="2" id="w9x-Iz-Ymi"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>

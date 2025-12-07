@@ -3,6 +3,7 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -11,13 +12,12 @@
         <!--Appointments-->
         <scene sceneID="iYD-vo-ecs">
             <objects>
-                <navigationController id="6m9-tf-og4" sceneMemberID="viewController">
+                <navigationController navigationBarHidden="YES" id="6m9-tf-og4" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Appointments" image="calendar" catalog="system" id="9jG-ul-kj6"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO">
                         <color key="tintColor" name="BrandPurple"/>
                     </simulatedNavigationBarMetrics>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="ndz-Cn-sqg">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -41,12 +41,52 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Appointments" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2w6-af-pF1">
+                                <rect key="frame" x="20" y="144.66666666666666" width="159.33333333333334" height="28.666666666666657"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
+                                <color key="textColor" name="TextPrimary"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Hgc-ur-AXa">
+                                <rect key="frame" x="257" y="134" width="116" height="50"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PL2-4p-eGx">
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                        <color key="backgroundColor" name="BackgroundLight"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="494-ZI-3fA"/>
+                                            <constraint firstAttribute="width" constant="50" id="P5a-ke-aB3"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" image="magnifyingglass" catalog="system"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BUy-OQ-pA5">
+                                        <rect key="frame" x="66" y="0.0" width="50" height="50"/>
+                                        <color key="backgroundColor" name="BackgroundLight"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="50" id="bwC-yW-wze"/>
+                                            <constraint firstAttribute="height" constant="50" id="mcB-xt-lZW"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" image="bell" catalog="system"/>
+                                    </button>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="kpO-sH-tRg"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Hgc-ur-AXa" firstAttribute="top" secondItem="kpO-sH-tRg" secondAttribute="top" constant="16" id="cGX-Qk-h0B"/>
+                            <constraint firstItem="2w6-af-pF1" firstAttribute="leading" secondItem="kpO-sH-tRg" secondAttribute="leading" constant="20" id="irM-F6-kno"/>
+                            <constraint firstItem="2w6-af-pF1" firstAttribute="centerY" secondItem="Hgc-ur-AXa" secondAttribute="centerY" id="tfK-Md-e86"/>
+                            <constraint firstItem="kpO-sH-tRg" firstAttribute="trailing" secondItem="Hgc-ur-AXa" secondAttribute="trailing" constant="20" id="z3P-4v-TvQ"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Appointments" id="dpl-Ln-hQI"/>
+                    <nil key="simulatedTopBarMetrics"/>
                     <connections>
+                        <outlet property="alertsButton" destination="BUy-OQ-pA5" id="8HB-b5-9QA"/>
+                        <outlet property="searchButton" destination="PL2-4p-eGx" id="V1p-HP-ewE"/>
                         <outlet property="tableView" destination="exk-Si-JuR" id="dyT-u1-jV5"/>
                     </connections>
                 </viewController>
@@ -57,9 +97,17 @@
     </scenes>
     <color key="tintColor" name="BrandPurple"/>
     <resources>
+        <image name="bell" catalog="system" width="125" height="128"/>
         <image name="calendar" catalog="system" width="128" height="107"/>
+        <image name="magnifyingglass" catalog="system" width="128" height="117"/>
+        <namedColor name="BackgroundLight">
+            <color red="1" green="1" blue="1" alpha="0.89999997615814209" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <namedColor name="BrandPurple">
             <color red="0.44313725490196076" green="0.25098039215686274" blue="0.99215686274509807" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="TextPrimary">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

@@ -3,6 +3,7 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -11,13 +12,12 @@
         <!--Finder-->
         <scene sceneID="Rnh-7m-2cw">
             <objects>
-                <navigationController id="sXj-ZY-Hzf" sceneMemberID="viewController">
+                <navigationController navigationBarHidden="YES" id="sXj-ZY-Hzf" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Finder" image="map.fill" catalog="system" id="EGM-BV-GlC"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO">
                         <color key="tintColor" name="BrandPurple"/>
                     </simulatedNavigationBarMetrics>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="piQ-zV-D1k">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -73,12 +73,60 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Location" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qKO-Uw-JLj">
+                                <rect key="frame" x="20" y="134" width="57" height="17"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                <color key="textColor" name="TextSecondary"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="XCU-WQ-tUl">
+                                <rect key="frame" x="257" y="134" width="116" height="50"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1CF-zp-gQs">
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                        <color key="backgroundColor" name="BackgroundLight"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="EYm-4j-5pi"/>
+                                            <constraint firstAttribute="width" constant="50" id="Lcl-QT-QKJ"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" image="magnifyingglass" catalog="system"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="q21-NX-8My">
+                                        <rect key="frame" x="66" y="0.0" width="50" height="50"/>
+                                        <color key="backgroundColor" name="BackgroundLight"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="YOB-3O-LHh"/>
+                                            <constraint firstAttribute="width" constant="50" id="wrc-gH-Pqz"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" image="bell" catalog="system"/>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Toronto, Ontario" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JQP-0v-Tg9">
+                                <rect key="frame" x="20" y="155" width="153" height="24"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                <color key="textColor" name="TextPrimary"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="SEu-dJ-9of"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="JQP-0v-Tg9" firstAttribute="leading" secondItem="SEu-dJ-9of" secondAttribute="leading" constant="20" id="0ip-Kb-QSm"/>
+                            <constraint firstItem="qKO-Uw-JLj" firstAttribute="leading" secondItem="SEu-dJ-9of" secondAttribute="leading" constant="20" id="4tT-Fa-C0o"/>
+                            <constraint firstItem="qKO-Uw-JLj" firstAttribute="top" secondItem="SEu-dJ-9of" secondAttribute="top" constant="16" id="CnS-hU-MkL"/>
+                            <constraint firstItem="SEu-dJ-9of" firstAttribute="trailing" secondItem="XCU-WQ-tUl" secondAttribute="trailing" constant="20" id="E2M-mh-Oj8"/>
+                            <constraint firstItem="XCU-WQ-tUl" firstAttribute="top" secondItem="SEu-dJ-9of" secondAttribute="top" constant="16" id="JYJ-dT-812"/>
+                            <constraint firstItem="JQP-0v-Tg9" firstAttribute="top" secondItem="qKO-Uw-JLj" secondAttribute="bottom" constant="4" id="MGb-Sg-IwH"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Finder" id="cgU-4L-fnz"/>
+                    <nil key="simulatedTopBarMetrics"/>
                     <connections>
+                        <outlet property="alertsButton" destination="q21-NX-8My" id="ajc-m2-LgS"/>
+                        <outlet property="searchButton" destination="1CF-zp-gQs" id="KSu-WP-ksq"/>
                         <outlet property="searchTextField" destination="UwP-lE-HNK" id="JBz-Gw-Y5B"/>
                         <outlet property="tableView" destination="S3v-rN-WIJ" id="yYo-48-JNZ"/>
                     </connections>
@@ -90,9 +138,20 @@
     </scenes>
     <color key="tintColor" name="BrandPurple"/>
     <resources>
+        <image name="bell" catalog="system" width="125" height="128"/>
+        <image name="magnifyingglass" catalog="system" width="128" height="117"/>
         <image name="map.fill" catalog="system" width="128" height="110"/>
+        <namedColor name="BackgroundLight">
+            <color red="1" green="1" blue="1" alpha="0.89999997615814209" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <namedColor name="BrandPurple">
             <color red="0.44313725490196076" green="0.25098039215686274" blue="0.99215686274509807" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="TextPrimary">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="TextSecondary">
+            <color red="0.70196078431372544" green="0.69411764705882351" blue="0.69019607843137254" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

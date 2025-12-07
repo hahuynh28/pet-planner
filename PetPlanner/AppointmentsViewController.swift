@@ -11,6 +11,8 @@ import CoreData
 class AppointmentsViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var searchButton: UIButton!
+    @IBOutlet weak var alertsButton: UIButton!
 
     // data source from Core Data
     var appointments: [Appointment] = []
@@ -19,6 +21,18 @@ class AppointmentsViewController: UIViewController {
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
+        
+        setupHeader()
+    }
+    
+    func setupHeader() {
+        searchButton.backgroundColor = .white
+        searchButton.applyShadow(opacity: 0.2, y: 3, blur: 6)
+        searchButton.makeRound(radius: 12)
+        
+        alertsButton.backgroundColor = .white
+        alertsButton.applyShadow(opacity: 0.2, y: 3, blur: 6)
+        alertsButton.makeRound(radius: 12)
     }
 
     // Refresh list every time screen appears

@@ -26,7 +26,7 @@ class EventCell: UITableViewCell {
         
         // Use the shadow extension you added to DashboardViewController
         // (Copy that extension to a separate file if this errors, or just paste it at bottom)
-        containerView.applyShadow(opacity: 0.1, y: 4, blur: 10)
+        containerView.applyShadow(opacity: 0.1, y: 0.5, blur: 2)
         
         // 2. Style the Pet Image
         petImageView.makeRound(radius: petImageView.frame.height / 2)
