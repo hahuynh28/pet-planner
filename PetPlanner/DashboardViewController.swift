@@ -7,20 +7,73 @@
 
 import UIKit
 
-class DashboardViewController: UIViewController {
+class DashboardViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var collectionView: UICollectionView!
-
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var alertsButton: UIButton!
+    @IBOutlet weak var searchButton: UIButton!
+    
     // sample pets
     let pets: [Pet] = [
         Pet(name: "Milo",      imageName: "milo-avatar"),
         Pet(name: "Whiskers",  imageName: "whiskers-avatar")
+    ]
+    
+    struct Event {
+        let title: String
+        let pet: String
+        let date: String
+        let hasBadge: Bool
+        let image: String
+    }
+    
+    let events: [Event] = [
+        Event(title: "Medication: Apoquel", pet: "Milo", date: "Wed, Nov 5", hasBadge: true, image: "milo-avatar"),
+        Event(title: "Annual Check-up", pet: "Whiskers", date: "Fri, Dec 12", hasBadge: false, image: "whiskers-avatar"),
+        Event(title: "Grooming", pet: "Milo", date: "Sat, Dec 20", hasBadge: false, image: "milo-avatar")
     ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.dataSource = self
         collectionView.delegate   = self
+        tableView.dataSource = self
+        tableView.delegate = self
+        
+        alertsButton.applyShadow(opacity: 0.2, y: 3, blur: 6)
+        alertsButton.makeRound(radius: 12)
+        searchButton.applyShadow(opacity: 0.2, y: 3, blur: 6)
+        searchButton.makeRound(radius: 12)
+        tableView.separatorStyle = .none  // Hides lines so cards look floating
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return events.count
+    }
+
+    // 5. Build each card
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "EventCell", for: indexPath) as! EventCell
+        
+        let event = events[indexPath.row]
+        
+        // Use the configure function we wrote in Part A
+        cell.configure(with: event)
+        
+        return cell
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Hide the nav bar on the Dashboard
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // Show it again when leaving (e.g., going to Pet Profile)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 }
 
@@ -46,6 +99,10 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
             // Last cell = Add Pet
             cell.nameLabel.text = "Add Pet"
             cell.petImageView.image = UIImage(systemName: "plus")
+            cell.petImageView.backgroundColor = UIColor.systemGray6 // Light gray background
+            cell.petImageView.tintColor = UIColor.gray // Gray plus icon
+            cell.petImageView.contentMode = .center // Keep the plus icon centered and small
+            cell.petImageView.layer.borderWidth = 0
         }
         return cell
     }
@@ -54,7 +111,7 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 90, height: 110)
+        return CGSize(width: 90, height: 125)
     }
 
     func collectionView(_ collectionView: UICollectionView,

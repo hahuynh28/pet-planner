@@ -11,6 +11,8 @@ class VetSearchViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var searchTextField: UITextField!
+    @IBOutlet weak var searchButton: UIButton!
+    @IBOutlet weak var alertsButton: UIButton!
 
     let allClinics: [VetClinic] = [
         VetClinic(name: "Brampton Veterinary Clinic",
@@ -42,6 +44,18 @@ class VetSearchViewController: UIViewController {
                                   for: .editingChanged)
 
         filteredClinics = allClinics
+        
+        setupHeader()
+    }
+    
+    func setupHeader() {
+        searchButton.backgroundColor = .white
+        searchButton.applyShadow(opacity: 0.2, y: 3, blur: 6)
+        searchButton.makeRound(radius: 12)
+        
+        alertsButton.backgroundColor = .white
+        alertsButton.applyShadow(opacity: 0.2, y: 3, blur: 6)
+        alertsButton.makeRound(radius: 12)
     }
 
     @objc private func searchTextChanged() {
