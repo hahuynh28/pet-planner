@@ -102,4 +102,13 @@ extension VetSearchViewController: UITableViewDataSource, UITableViewDelegate {
 
         return cell
     }
+    
+    @IBAction func didTapSearch(_ sender: Any) {
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        if let vc = sb.instantiateViewController(withIdentifier: "VetSearchViewController") as? VetSearchViewController {
+            navigationController?.pushViewController(vc, animated: true)
+        } else {
+            print("Still not found!")
+        }
+    }
 }
