@@ -128,7 +128,18 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
             cell.nameLabel.text = pet.name ?? "Unknown"
                         
             if let imgName = pet.imageName {
-                cell.petImageView.image = UIImage(named: imgName)
+                // Check if it's an Asset (like "milo-avatar") or a Disk File (UUID)
+                if let assetImage = UIImage(named: imgName) {
+                    cell.petImageView.image = assetImage
+                } else {
+                    // Try loading from Disk
+                    let filename = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(imgName)
+                    if let diskImage = UIImage(contentsOfFile: filename.path) {
+                        cell.petImageView.image = diskImage
+                    } else {
+                        cell.petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+                    }
+                }
             } else {
                 cell.petImageView.image = UIImage(systemName: "pawprint.circle.fill")
             }
@@ -161,8 +172,7 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
             let selectedPet = pets[indexPath.item]
             performSegue(withIdentifier: "showPetProfile", sender: selectedPet)
         } else {
-            // Add Pet cell tapped – storyboard team can show Add Pet form
-            print("Add Pet tapped")
+            performSegue(withIdentifier: "showAddPet", sender: nil)
         }
     }
     

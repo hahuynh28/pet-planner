@@ -45,11 +45,11 @@ class PetDetailsViewController: UIViewController {
         petImageView.contentMode = .scaleAspectFill
         
         // Style buttons
-        deleteButton.layer.cornerRadius = 20 // Pill shape
+//        deleteButton.layer.cornerRadius = 20 // Pill shape
         deleteButton.backgroundColor = .systemRed.withAlphaComponent(0.1)
         deleteButton.setTitleColor(.systemRed, for: .normal)
         
-        editButton.layer.cornerRadius = 20
+//        editButton.layer.cornerRadius = 20
         editButton.backgroundColor = UIColor.systemGray6
         editButton.setTitleColor(.black, for: .normal)
     }
