@@ -63,6 +63,16 @@ class AppointmentsViewController: UIViewController {
 
             destination.appointment = appointments[indexPath.row]
         }
+        
+        if segue.identifier == "showDetails",
+           // 2. Get the destination controller
+           let destination = segue.destination as? AppointmentDetailsViewController,
+           // 3. Get the index of the row the user tapped
+           let indexPath = tableView.indexPathForSelectedRow {
+            
+            // 4. Pass the data object to the next screen
+            destination.appointment = appointments[indexPath.row]
+        }
     }
 }
 
