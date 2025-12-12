@@ -75,7 +75,7 @@ class VetSearchViewController: UIViewController {
            let indexPath = tableView.indexPathForSelectedRow,
            let dest = segue.destination as? VetDetailsViewController {
 
-            dest.clinic = filteredClinics[indexPath.row]
+            //dest.clinic = filteredClinics[indexPath.row]
         }
     }
 }
