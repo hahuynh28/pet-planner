@@ -22,6 +22,8 @@ class AppointmentsViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         
+        tableView.separatorStyle = .none
+        
         setupHeader()
     }
     
@@ -61,6 +63,16 @@ class AppointmentsViewController: UIViewController {
 
             destination.appointment = appointments[indexPath.row]
         }
+        
+        if segue.identifier == "showDetails",
+           // 2. Get the destination controller
+           let destination = segue.destination as? AppointmentDetailsViewController,
+           // 3. Get the index of the row the user tapped
+           let indexPath = tableView.indexPathForSelectedRow {
+            
+            // 4. Pass the data object to the next screen
+            destination.appointment = appointments[indexPath.row]
+        }
     }
 }
 
@@ -72,24 +84,23 @@ extension AppointmentsViewController: UITableViewDataSource, UITableViewDelegate
         return appointments.count
     }
 
-    func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        // 1. Cast the cell to your custom class 'AppointmentCell'
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "AppointmentCell", for: indexPath) as? AppointmentCell else {
+            return UITableViewCell()
+        }
 
-        let cell = tableView.dequeueReusableCell(withIdentifier: "AppointmentCell",
-                                                 for: indexPath)
-
+        // 2. Get the data
         let appt = appointments[indexPath.row]
+        
+        // 3. Configure the CUSTOM card (Pet, Date, Clinic)
+        // This calls the code we wrote in AppointmentCell.swift
+        cell.configure(with: appt)
 
-        // You can customize later with custom labels
-        let title = appt.titleText ?? "Appointment"
-        let pet   = appt.petName ?? ""
-        let date  = appt.dateText ?? ""
-        let time  = appt.timeText ?? ""
-        let clinic = appt.clinicName ?? ""
-
-        cell.textLabel?.text = title
-        cell.detailTextLabel?.text = "\(pet) • \(date) • \(time) • \(clinic)"
-
+        // 4. Important: Ensure the cell background is clear so the card shadow shows
+        cell.backgroundColor = .clear
+        
         return cell
     }
 }

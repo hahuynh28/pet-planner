@@ -6,49 +6,245 @@
 //
 
 import UIKit
+import CoreData
 
-class EditAppointmentViewController: UIViewController {
+class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
 
-    // injected from AppointmentsViewController in prepare(for segue:)
     var appointment: Appointment!
 
-    @IBOutlet weak var titleField: UITextField!
+    @IBOutlet weak var petImageView: UIImageView!
+    @IBOutlet weak var petNameLabel: UILabel!
+    @IBOutlet weak var petBreedLabel: UILabel!
+    
     @IBOutlet weak var petField: UITextField!
     @IBOutlet weak var dateField: UITextField!
     @IBOutlet weak var timeField: UITextField!
     @IBOutlet weak var clinicField: UITextField!
     @IBOutlet weak var notesField: UITextField!
+    @IBOutlet weak var saveButton: UIButton!
+    
+    let datePicker = UIDatePicker()
+    let timePicker = UIDatePicker()
+    let petPicker = UIPickerView()
+    
+    var pets: [Pet] = []
+    var selectedPet: Pet?
+    
+    var isFormValid: Bool {
+        return !(petField.text?.isEmpty ?? true) &&
+               !(dateField.text?.isEmpty ?? true) &&
+               !(timeField.text?.isEmpty ?? true) &&
+               !(clinicField.text?.isEmpty ?? true) &&
+               !(notesField.text?.isEmpty ?? true)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadAppointmentData()
+        self.title = "Edit Appointment"
+        
+        fetchPets()
+        
+        setupUI()
+        setupInputViews()
+        setupButton()
+        populateFields()
+        
+        [clinicField, notesField].forEach {
+            $0?.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        }
+        
+        [petField, dateField, timeField].forEach { $0?.delegate = self }
+    }
+    
+    // MARK: - Core Data Fetch
+    func fetchPets() {
+        let context = CoreDataStack.shared.context
+        let request: NSFetchRequest<Pet> = Pet.fetchRequest()
+        do {
+            pets = try context.fetch(request)
+            petPicker.reloadAllComponents()
+        } catch {
+            print("Error fetching pets: \(error)")
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
-    private func loadAppointmentData() {
-        titleField.text  = appointment.titleText
-        petField.text    = appointment.petName
-        dateField.text   = appointment.dateText
-        timeField.text   = appointment.timeText
-        clinicField.text = appointment.clinicName
-        notesField.text  = appointment.notes
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent {
+            navigationController?.setNavigationBarHidden(true, animated: animated)
+        }
+    }
+    
+    @objc func textDidChange() {
+        validateForm()
     }
 
-    @IBAction func saveChangesTapped(_ sender: UIButton) {
-        appointment.titleText  = titleField.text
+    func populateFields() {
+        guard let appt = appointment else { return }
+        
+        let name = appt.petName ?? "Unknown"
+        petNameLabel.text = name
+        
+        if name.lowercased().contains("milo") {
+            petImageView.image = UIImage(named: "milo-avatar")
+            petBreedLabel.text = "Golden Retriever"
+        } else if name.lowercased().contains("whisker") {
+            petImageView.image = UIImage(named: "whiskers-avatar")
+            petBreedLabel.text = "Tabby Cat"
+        } else {
+            petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+            petBreedLabel.text = "Pet"
+        }
+        
+        petImageView.layer.cornerRadius = 30
+        petImageView.clipsToBounds = true
+        petImageView.contentMode = .scaleAspectFill
+        
+        petField.text    = appt.petName
+        dateField.text   = appt.dateText
+        timeField.text   = appt.timeText
+        clinicField.text = appt.clinicName
+        notesField.text  = appt.notes
+        
+        validateForm()
+    }
+    
+    func setupButton() {
+        saveButton.translatesAutoresizingMaskIntoConstraints = false
+        saveButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        var config = UIButton.Configuration.filled()
+        config.baseBackgroundColor = UIColor(named: "BrandPurple")
+        config.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = UIFont.boldSystemFont(ofSize: 18)
+        config.attributedTitle = AttributedString("Save Changes", attributes: container)
+        
+        saveButton.configuration = config
+    }
+    
+    func validateForm() {
+        if isFormValid {
+            saveButton.isEnabled = true
+            saveButton.configuration?.baseBackgroundColor = UIColor(named: "BrandPurple")
+        } else {
+            saveButton.isEnabled = false
+            saveButton.configuration?.baseBackgroundColor = UIColor.systemGray5
+        }
+    }
+
+    func setupUI() {
+        [petField, dateField, timeField, clinicField, notesField].forEach {
+            $0?.styleInput()
+        }
+    }
+
+    func setupInputViews() {
+        datePicker.datePickerMode = .date
+        datePicker.preferredDatePickerStyle = .wheels
+        datePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
+        dateField.inputView = datePicker
+        
+        timePicker.datePickerMode = .time
+        timePicker.preferredDatePickerStyle = .wheels
+        timePicker.addTarget(self, action: #selector(timeChanged), for: .valueChanged)
+        timeField.inputView = timePicker
+        
+        petPicker.delegate = self
+        petPicker.dataSource = self
+        petField.inputView = petPicker
+        
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        let doneBtn = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbar.setItems([flexSpace, doneBtn], animated: true)
+        
+        dateField.inputAccessoryView = toolbar
+        timeField.inputAccessoryView = toolbar
+        petField.inputAccessoryView = toolbar
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField == dateField && (textField.text?.isEmpty ?? true) {
+            dateChanged()
+        } else if textField == timeField && (textField.text?.isEmpty ?? true) {
+            timeChanged()
+        } else if textField == petField && (textField.text?.isEmpty ?? true) {
+            if !pets.isEmpty {
+                selectedPet = pets[0]
+                petField.text = selectedPet?.name
+                validateForm()
+            }
+        }
+    }
+
+    @objc func dateChanged() {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        dateField.text = formatter.string(from: datePicker.date)
+        validateForm()
+    }
+
+    @objc func timeChanged() {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        timeField.text = formatter.string(from: timePicker.date)
+        validateForm()
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+
+    @IBAction func saveButtonTapped(_ sender: UIButton) {
         appointment.petName    = petField.text
         appointment.dateText   = dateField.text
         appointment.timeText   = timeField.text
         appointment.clinicName = clinicField.text
         appointment.notes      = notesField.text
+        
+        if let pet = selectedPet {
+            appointment.pet = pet
+        }
 
         CoreDataStack.shared.saveContext()
         navigationController?.popViewController(animated: true)
     }
+}
 
-    @IBAction func deleteTapped(_ sender: UIButton) {
-        let context = CoreDataStack.shared.context
-        context.delete(appointment)
-        CoreDataStack.shared.saveContext()
-        navigationController?.popViewController(animated: true)
+extension EditAppointmentViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return pets.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return pets[row].name ?? "Unknown"
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        selectedPet = pets[row]
+        petField.text = selectedPet?.name
+        
+        petNameLabel.text = selectedPet?.name
+        if let name = selectedPet?.name?.lowercased() {
+            if name.contains("milo") {
+                petImageView.image = UIImage(named: "milo-avatar")
+                petBreedLabel.text = "Golden Retriever"
+            } else if name.contains("whisker") {
+                petImageView.image = UIImage(named: "whiskers-avatar")
+                petBreedLabel.text = "Tabby Cat"
+            }
+        }
+        
+        validateForm()
     }
 }

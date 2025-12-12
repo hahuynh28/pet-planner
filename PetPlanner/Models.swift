@@ -8,10 +8,10 @@
 import Foundation
 
 // Simple in-memory model for a pet
-struct Pet {
-    let name: String
-    let imageName: String
-}
+//struct Pet {
+//    let name: String
+//    let imageName: String
+//}
 
 // Simple in-memory model for a vet clinic
 struct VetClinic {
