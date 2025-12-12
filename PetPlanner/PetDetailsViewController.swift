@@ -69,10 +69,27 @@ class PetDetailsViewController: UIViewController {
         
         // Image Logic
         if let imgName = pet.imageName {
-            petImageView.image = UIImage(named: imgName)
+            // 1. Try Asset Catalog (for dummy data like "milo-avatar")
+            if let assetImage = UIImage(named: imgName) {
+                petImageView.image = assetImage
+            } else {
+                // 2. Try Documents Directory (for user uploads)
+                let filename = getDocumentsDirectory().appendingPathComponent(imgName)
+                if let diskImage = UIImage(contentsOfFile: filename.path) {
+                    petImageView.image = diskImage
+                } else {
+                    // 3. File not found anywhere
+                    petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+                }
+            }
         } else {
+            // No image name saved
             petImageView.image = UIImage(systemName: "pawprint.circle.fill")
         }
+    }
+    
+    func getDocumentsDirectory() -> URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
 
     @IBAction func deleteTapped(_ sender: UIButton) {
@@ -86,8 +103,10 @@ class PetDetailsViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    @IBAction func editTapped(_ sender: UIButton) {
-        // We will perform the segue to "Edit Pet" here later
-        // performSegue(withIdentifier: "showEditPet", sender: self)
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showEditPet",
+           let dest = segue.destination as? EditPetViewController {
+            dest.pet = self.pet
+        }
     }
 }

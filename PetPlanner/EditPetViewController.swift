@@ -1,5 +1,5 @@
 //
-//  AddPetViewController.swift
+//  EditPetViewController.swift
 //  PetPlanner
 //
 //  Created by Tristan Katwaroo on 2025-12-12.
@@ -8,34 +8,37 @@
 import UIKit
 import CoreData
 
-class AddPetViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
+class EditPetViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
 
-    // MARK: - Outlets
+    // 1. Data Injection
+    var pet: Pet!
+
+    // Outlets (Same as Add Pet)
     @IBOutlet weak var petImageView: UIImageView!
     @IBOutlet weak var nameField: UITextField!
     @IBOutlet weak var breedField: UITextField!
     @IBOutlet weak var dobField: UITextField!
     @IBOutlet weak var saveButton: UIButton!
+    @IBOutlet weak var imageOverlay: UIView!
     
     // Pickers
     let datePicker = UIDatePicker()
     let imagePicker = UIImagePickerController()
-    
     var didPickImage = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Add New Pet"
+        title = "Edit Pet"
         
         setupUI()
         setupInputViews()
+        populateData()
         
         // Image Tap Gesture
         let tap = UITapGestureRecognizer(target: self, action: #selector(pickImage))
         petImageView.addGestureRecognizer(tap)
         petImageView.isUserInteractionEnabled = true
         
-        // Delegates
         nameField.delegate = self
         breedField.delegate = self
     }
@@ -45,36 +48,87 @@ class AddPetViewController: UIViewController, UIImagePickerControllerDelegate, U
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
-    // MARK: - Setup UI
-    func setupUI() {
-        // Image Style
-        petImageView.layer.cornerRadius = 30 // Half of the 60pt size
-        petImageView.clipsToBounds = true
-        // Use a placeholder symbol & style it
-//        petImageView.image = UIImage(systemName: "camera.fill")
-        petImageView.tintColor = .systemGray3
-        petImageView.backgroundColor = .systemGray6
-        petImageView.contentMode = .center
+    func populateData() {
+        // 1. Fill Text
+        nameField.text = pet.name
+        breedField.text = pet.breed
         
-        // Inputs
+        if let dob = pet.dob {
+            datePicker.date = dob
+            dateChanged() // Updates the text field
+        }
+        
+        // 2. Fill Image
+        if let imgName = pet.imageName {
+            if let assetImage = UIImage(named: imgName) {
+                petImageView.image = assetImage
+            } else {
+                let filename = getDocumentsDirectory().appendingPathComponent(imgName)
+                if let diskImage = UIImage(contentsOfFile: filename.path) {
+                    petImageView.image = diskImage
+                    petImageView.contentMode = .scaleAspectFill // Ensure it looks good
+                } else {
+                    // Fallback if file missing
+                    petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+                }
+            }
+        } else {
+            // No image set
+            petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+        }
+    }
+    
+    // MARK: - Save Logic (Update)
+    @IBAction func saveTapped(_ sender: UIButton) {
+        guard let name = nameField.text, !name.isEmpty else { return }
+        
+        let context = CoreDataStack.shared.context
+        
+        // UPDATE existing object (Don't create new)
+        pet.name = name
+        pet.breed = breedField.text
+        pet.dob = datePicker.date
+        
+        // Update Image ONLY if user picked a new one
+        if didPickImage, let image = petImageView.image {
+            let imageName = UUID().uuidString + ".jpg"
+            if let data = image.jpegData(compressionQuality: 0.8) {
+                let filename = getDocumentsDirectory().appendingPathComponent(imageName)
+                try? data.write(to: filename)
+                pet.imageName = imageName
+            }
+        }
+        
+        CoreDataStack.shared.saveContext()
+        navigationController?.popViewController(animated: true)
+    }
+    
+    // MARK: - Reuse UI Code (Identical to AddPet)
+    func setupUI() {
+        petImageView.layer.cornerRadius = 60
+        petImageView.clipsToBounds = true
+        // Note: contentMode is set in populateData based on image availability
+//        petImageView.tintColor = .systemGray3
+//        petImageView.backgroundColor = .systemGray6
+        
+        imageOverlay.layer.cornerRadius = 60
+        imageOverlay.clipsToBounds = true
+        
         [nameField, breedField, dobField].forEach { $0?.styleInput() }
         
-        // Save Button
         saveButton.layer.cornerRadius = 25
         saveButton.backgroundColor = UIColor(named: "BrandPurple")
-        saveButton.setTitle("Save Pet", for: .normal)
+        saveButton.setTitle("Save Changes", for: .normal)
         saveButton.setTitleColor(.white, for: .normal)
     }
     
     func setupInputViews() {
-        // Date Picker for Birthday
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .wheels
-        datePicker.maximumDate = Date() // Can't be born in the future
+        datePicker.maximumDate = Date()
         datePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
         dobField.inputView = datePicker
         
-        // Toolbar
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
         let doneBtn = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))
@@ -84,7 +138,6 @@ class AddPetViewController: UIViewController, UIImagePickerControllerDelegate, U
         breedField.inputAccessoryView = toolbar
     }
     
-    // MARK: - Actions
     @objc func dateChanged() {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -95,7 +148,6 @@ class AddPetViewController: UIViewController, UIImagePickerControllerDelegate, U
         view.endEditing(true)
     }
     
-    // MARK: - Image Picker
     @objc func pickImage() {
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
             imagePicker.delegate = self
@@ -108,40 +160,12 @@ class AddPetViewController: UIViewController, UIImagePickerControllerDelegate, U
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
             petImageView.image = image
+            petImageView.contentMode = .scaleAspectFill
             didPickImage = true
         }
         dismiss(animated: true)
     }
-
-    // MARK: - Save Logic
-    @IBAction func saveTapped(_ sender: UIButton) {
-        guard let name = nameField.text, !name.isEmpty else {
-            // Simple validation
-            return
-        }
-        
-        let context = CoreDataStack.shared.context
-        let newPet = Pet(context: context)
-        
-        newPet.name = name
-        newPet.breed = breedField.text
-        newPet.dob = datePicker.date
-        
-        // SAVE IMAGE TO DISK
-        if didPickImage, let image = petImageView.image {
-            let imageName = UUID().uuidString + ".jpg"
-            if let data = image.jpegData(compressionQuality: 0.8) {
-                let filename = getDocumentsDirectory().appendingPathComponent(imageName)
-                try? data.write(to: filename)
-                newPet.imageName = imageName
-            }
-        }
-        
-        CoreDataStack.shared.saveContext()
-        navigationController?.popViewController(animated: true)
-    }
     
-    // Helper to find where to save images
     func getDocumentsDirectory() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }

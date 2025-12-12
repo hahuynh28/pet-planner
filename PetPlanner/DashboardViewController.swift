@@ -126,6 +126,8 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
         if indexPath.item < pets.count {
             let pet = pets[indexPath.item]
             cell.nameLabel.text = pet.name ?? "Unknown"
+            
+            cell.petImageView.tintColor = UIColor(named: "BrandPurple")
                         
             if let imgName = pet.imageName {
                 // Check if it's an Asset (like "milo-avatar") or a Disk File (UUID)
@@ -182,6 +184,10 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
            let pet = sender as? Pet {
             
             dest.pet = pet
+        } else if segue.identifier == "showAddPet" {
+            let backItem = UIBarButtonItem()
+            backItem.title = "Back"
+            navigationItem.backBarButtonItem = backItem
         }
     }
 }
