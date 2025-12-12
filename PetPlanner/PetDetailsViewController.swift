@@ -1,0 +1,93 @@
+//
+//  PetDetailsViewController.swift
+//  PetPlanner
+//
+//  Created by Tristan Katwaroo on 2025-12-12.
+//
+
+import UIKit
+import CoreData
+
+class PetDetailsViewController: UIViewController {
+
+    var pet: Pet! // Data injected from Dashboard
+
+//    @IBOutlet weak var headerView: UIView!
+    @IBOutlet weak var petImageView: UIImageView!
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var breedLabel: UILabel!
+    @IBOutlet weak var ageLabel: UILabel! // "4 years old"
+    
+    @IBOutlet weak var deleteButton: UIButton!
+    @IBOutlet weak var editButton: UIButton!
+    
+    // Future: We will add a TableView here for "Appointment History" later!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        populateData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Show Nav Bar so we have a "Back" button
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+        populateData() // Refresh in case we edited the pet
+    }
+    
+    func setupUI() {
+        // Style the image
+        petImageView.layer.cornerRadius = 60 // Assuming 120x120 size
+        petImageView.layer.borderWidth = 4
+        petImageView.layer.borderColor = UIColor.white.cgColor
+        petImageView.clipsToBounds = true
+        petImageView.contentMode = .scaleAspectFill
+        
+        // Style buttons
+        deleteButton.layer.cornerRadius = 20 // Pill shape
+        deleteButton.backgroundColor = .systemRed.withAlphaComponent(0.1)
+        deleteButton.setTitleColor(.systemRed, for: .normal)
+        
+        editButton.layer.cornerRadius = 20
+        editButton.backgroundColor = UIColor.systemGray6
+        editButton.setTitleColor(.black, for: .normal)
+    }
+    
+    func populateData() {
+        nameLabel.text = pet.name
+        breedLabel.text = pet.breed ?? "Unknown Breed"
+        
+        // Calculate Age (Optional logic)
+        if let dob = pet.dob {
+            let ageComponents = Calendar.current.dateComponents([.year], from: dob, to: Date())
+            let years = ageComponents.year ?? 0
+            ageLabel.text = "\(years) years old"
+        } else {
+            ageLabel.text = "Age Unknown"
+        }
+        
+        // Image Logic
+        if let imgName = pet.imageName {
+            petImageView.image = UIImage(named: imgName)
+        } else {
+            petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+        }
+    }
+
+    @IBAction func deleteTapped(_ sender: UIButton) {
+        let alert = UIAlertController(title: "Delete \(pet.name ?? "Pet")?", message: "This will also delete all their appointments.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+            CoreDataStack.shared.context.delete(self.pet)
+            CoreDataStack.shared.saveContext()
+            self.navigationController?.popViewController(animated: true)
+        }))
+        present(alert, animated: true)
+    }
+    
+    @IBAction func editTapped(_ sender: UIButton) {
+        // We will perform the segue to "Edit Pet" here later
+        // performSegue(withIdentifier: "showEditPet", sender: self)
+    }
+}

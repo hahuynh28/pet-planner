@@ -158,10 +158,20 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView,
                         didSelectItemAt indexPath: IndexPath) {
         if indexPath.item < pets.count {
-            print("Selected pet: \(pets[indexPath.item].name ?? "Unknown")")
+            let selectedPet = pets[indexPath.item]
+            performSegue(withIdentifier: "showPetProfile", sender: selectedPet)
         } else {
             // Add Pet cell tapped – storyboard team can show Add Pet form
             print("Add Pet tapped")
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showPetProfile",
+           let dest = segue.destination as? PetDetailsViewController,
+           let pet = sender as? Pet {
+            
+            dest.pet = pet
         }
     }
 }
