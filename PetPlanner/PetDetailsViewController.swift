@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-class PetDetailsViewController: UIViewController {
+class PetDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     var pet: Pet! // Data injected from Dashboard
 
@@ -20,12 +20,18 @@ class PetDetailsViewController: UIViewController {
     
     @IBOutlet weak var deleteButton: UIButton!
     @IBOutlet weak var editButton: UIButton!
+    @IBOutlet weak var tableView: UITableView!
     
-    // Future: We will add a TableView here for "Appointment History" later!
+    var appointments: [Appointment] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.separatorStyle = .none
+        
         populateData()
     }
     
@@ -86,6 +92,13 @@ class PetDetailsViewController: UIViewController {
             // No image name saved
             petImageView.image = UIImage(systemName: "pawprint.circle.fill")
         }
+        
+        if let petAppointments = pet.appointments as? Set<Appointment> {
+            self.appointments = Array(petAppointments).sorted {
+                ($0.dateText ?? "") > ($1.dateText ?? "")
+            }
+            tableView.reloadData()
+        }
     }
     
     func getDocumentsDirectory() -> URL {
@@ -108,5 +121,23 @@ class PetDetailsViewController: UIViewController {
            let dest = segue.destination as? EditPetViewController {
             dest.pet = self.pet
         }
+    }
+    
+    // MARK: - Table View Logic
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return appointments.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // REUSE the "AppointmentCell" logic!
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "AppointmentCell", for: indexPath) as? AppointmentCell else {
+            return UITableViewCell()
+        }
+
+        let appt = appointments[indexPath.row]
+        cell.configure(with: appt)
+        cell.backgroundColor = .clear // Important for shadow
+
+        return cell
     }
 }

@@ -44,13 +44,35 @@ class EventCell: UITableViewCell {
     }
     
     // Helper to fill data
-    func configure(with event: DashboardViewController.Event) {
-        titleLabel.text   = event.title
-        petNameLabel.text = event.pet
-        dateLabel.text    = event.date
-        petImageView.image = UIImage(named: event.image)
+    func configure(with appointment: Appointment) {
+        // 1. Map "Title" to the Reason/Notes (e.g., "Vaccination")
+        titleLabel.text = appointment.notes ?? "Appointment"
         
-        // Hide badge if not needed
-//        badgeLabel.isHidden = !event.hasBadge
+        // 2. Map Pet Name (Use relationship first, then fallback)
+        let name = appointment.pet?.name ?? appointment.petName ?? "Unknown Pet"
+        petNameLabel.text = name
+        
+        // 3. Map Date (Combine Date & Time)
+        let date = appointment.dateText ?? ""
+        let time = appointment.timeText ?? ""
+        dateLabel.text = "\(date) • \(time)"
+        
+        // 4. Load Image (Reusing logic from Dashboard)
+        // Reset first to avoid recycling ghosts
+        petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+        petImageView.tintColor = UIColor(named: "BrandPurple")
+        petImageView.backgroundColor = .systemGray6
+        
+        if let pet = appointment.pet, let imgName = pet.imageName {
+            if let assetImage = UIImage(named: imgName) {
+                petImageView.image = assetImage
+            } else {
+                let filename = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(imgName)
+                if let diskImage = UIImage(contentsOfFile: filename.path) {
+                    petImageView.image = diskImage
+                    petImageView.contentMode = .scaleAspectFill
+                }
+            }
+        }
     }
 }
