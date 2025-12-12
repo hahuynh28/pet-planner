@@ -42,15 +42,27 @@ class AppointmentCell: UITableViewCell {
         let name = appointment.petName ?? "Unknown Pet"
         petNameLabel.text = name
         
-        // NEW: Simple logic to pick the image based on name
-        // (Since we don't have a real Pet database relationship yet)
-        if name.lowercased().contains("milo") {
-            petImageView.image = UIImage(named: "milo-avatar")
-        } else if name.lowercased().contains("whisker") {
-            petImageView.image = UIImage(named: "whiskers-avatar")
+        petImageView.image = nil // Clear old image
+        petImageView.tintColor = UIColor(named: "BrandPurple")
+        petImageView.backgroundColor = .systemGray6
+        petImageView.contentMode = .scaleAspectFill
+        
+        if let pet = appointment.pet, let imgName = pet.imageName {
+            if let assetImage = UIImage(named: imgName) {
+                petImageView.image = assetImage
+                petImageView.backgroundColor = .clear
+            }
+            else {
+                let filename = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(imgName)
+                if let diskImage = UIImage(contentsOfFile: filename.path) {
+                    petImageView.image = diskImage
+                    petImageView.backgroundColor = .clear
+                } else {
+                    setFallbackImage()
+                }
+            }
         } else {
-            petImageView.image = UIImage(systemName: "pawprint.circle.fill") // Fallback
-            petImageView.tintColor = UIColor(named: "BrandPurple")
+            setFallbackImage()
         }
         
         let date = appointment.dateText ?? ""
@@ -59,5 +71,12 @@ class AppointmentCell: UITableViewCell {
         
         clinicLabel.text = appointment.clinicName ?? "No Clinic"
         notesLabel.text = appointment.notes ?? "No notes"
+    }
+    
+    func setFallbackImage() {
+        petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+        petImageView.tintColor = UIColor(named: "BrandPurple")
+        petImageView.backgroundColor = .systemGray6
+        petImageView.contentMode = .scaleAspectFit
     }
 }

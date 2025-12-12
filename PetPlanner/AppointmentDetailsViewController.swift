@@ -90,16 +90,36 @@ class AppointmentDetailsViewController: UIViewController {
         let name = appointment.petName ?? "Unknown"
         petNameLabel.text = name
         
-        // Logic for image (same as your cell)
-        if name.lowercased().contains("milo") {
-            petImageView.image = UIImage(named: "milo-avatar")
-            breedLabel.text = "Golden Retriever" // Hardcoded for demo
-        } else if name.lowercased().contains("whisker") {
-            petImageView.image = UIImage(named: "whiskers-avatar")
-            breedLabel.text = "Tabby Cat"
+        if let pet = appointment.pet, let breed = pet.breed, !breed.isEmpty {
+            breedLabel.text = breed
         } else {
+            breedLabel.text = "Pet" // Fallback
+        }
+        
+        petImageView.image = nil
+        petImageView.tintColor = UIColor(named: "BrandPurple")
+        petImageView.contentMode = .scaleAspectFill
+        
+        if let pet = appointment.pet, let imgName = pet.imageName {
+            // Try Asset (Dummy data)
+            if let assetImage = UIImage(named: imgName) {
+                petImageView.image = assetImage
+            }
+            // Try Disk (User uploads)
+            else {
+                let filename = getDocumentsDirectory().appendingPathComponent(imgName)
+                if let diskImage = UIImage(contentsOfFile: filename.path) {
+                    petImageView.image = diskImage
+                } else {
+                    // Fallback
+                    petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+                    petImageView.contentMode = .scaleAspectFit
+                }
+            }
+        } else {
+            // No image
             petImageView.image = UIImage(systemName: "pawprint.circle.fill")
-            breedLabel.text = "Pet"
+            petImageView.contentMode = .scaleAspectFit
         }
         
         // Details
@@ -107,6 +127,10 @@ class AppointmentDetailsViewController: UIViewController {
         timeLabel.text = appointment.timeText
         clinicLabel.text = appointment.clinicName
         reasonLabel.text = appointment.notes
+    }
+    
+    func getDocumentsDirectory() -> URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
 
     @IBAction func deleteTapped(_ sender: UIButton) {
