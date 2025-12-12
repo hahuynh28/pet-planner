@@ -10,7 +10,6 @@ import CoreData
 
 class AddAppointmentViewController: UIViewController, UITextFieldDelegate {
 
-//    @IBOutlet weak var titleField: UITextField!
     @IBOutlet weak var petField: UITextField!
     @IBOutlet weak var dateField: UITextField!
     @IBOutlet weak var timeField: UITextField!
@@ -22,9 +21,9 @@ class AddAppointmentViewController: UIViewController, UITextFieldDelegate {
     let timePicker = UIDatePicker()
     let petPicker = UIPickerView()
     
-    // Data source for the dropdown (Using the struct from Models.swift for now)
     var pets: [Pet] = []
     var selectedPet: Pet?
+    
     var isFormValid: Bool {
         return !(petField.text?.isEmpty ?? true) &&
                !(dateField.text?.isEmpty ?? true) &&
@@ -38,7 +37,8 @@ class AddAppointmentViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         self.title = "Book Appointment"
         
-        loadDummyData()
+        fetchPets()
+        
         setupUI()
         setupInputViews()
         setupButton()
@@ -50,53 +50,49 @@ class AddAppointmentViewController: UIViewController, UITextFieldDelegate {
         [petField, dateField, timeField].forEach { $0?.delegate = self }
     }
     
+    // MARK: - Core Data Fetch
+    func fetchPets() {
+        let context = CoreDataStack.shared.context
+        let request: NSFetchRequest<Pet> = Pet.fetchRequest()
+        do {
+            pets = try context.fetch(request)
+            petPicker.reloadAllComponents()
+        } catch {
+            print("Error fetching pets: \(error)")
+        }
+    }
+    
     @objc func textDidChange() {
         validateForm()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // FORCE the nav bar to show on this screen (since it's hidden on Dashboard)
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        // HIDE it again when going back to the previous screen
         navigationController?.setNavigationBarHidden(true, animated: animated)
-    }
-
-    // MARK: - Setup
-    func loadDummyData() {
-        // Temporary mock data until Pet Core Data entity is created
-        pets = [
-            Pet(name: "Milo", imageName: "milo-avatar"),
-            Pet(name: "Whiskers", imageName: "whiskers-avatar")
-        ]
     }
     
     func setupButton() {
         bookButton.translatesAutoresizingMaskIntoConstraints = false
         bookButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        // FIX: Use Configuration to set the shape, not the layer
         var config = UIButton.Configuration.filled()
         config.baseBackgroundColor = UIColor(named: "BrandPurple")
-        config.cornerStyle = .capsule // This guarantees a perfect pill shape
+        config.cornerStyle = .capsule
         
-        // Force Bold Font
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 18)
         config.attributedTitle = AttributedString("Book Appointment", attributes: container)
         
         bookButton.configuration = config
-        
         validateForm()
     }
     
     func validateForm() {
-        // We update the background color manually because 'isEnabled' logic
-        // can sometimes conflict with Configuration styles if not handled carefully.
         if isFormValid {
             bookButton.isEnabled = true
             bookButton.configuration?.baseBackgroundColor = UIColor(named: "BrandPurple")
@@ -107,8 +103,6 @@ class AddAppointmentViewController: UIViewController, UITextFieldDelegate {
     }
 
     func setupUI() {
-        // Apply the "Figma-style" inputs defined in Extensions.swift
-        // Note: Ensure you added the `styleInput()` extension to Extensions.swift!
         [petField, dateField, timeField, clinicField, notesField].forEach {
             $0?.styleInput()
         }
@@ -145,16 +139,12 @@ class AddAppointmentViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        // If the field is empty when the user taps it, fill it with the CURRENT picker value immediately.
-        // This solves the "I have to scroll away and back" issue.
-        
-        if textField == dateField && textField.text?.isEmpty ?? true {
+        if textField == dateField && (textField.text?.isEmpty ?? true) {
             dateChanged()
-        } else if textField == timeField && textField.text?.isEmpty ?? true {
+        } else if textField == timeField && (textField.text?.isEmpty ?? true) {
             timeChanged()
-        } else if textField == petField && textField.text?.isEmpty ?? true {
+        } else if textField == petField && (textField.text?.isEmpty ?? true) {
             if !pets.isEmpty {
-                // Default to the first pet if nothing selected
                 selectedPet = pets[0]
                 petField.text = selectedPet?.name
                 validateForm()
@@ -182,24 +172,26 @@ class AddAppointmentViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func saveButtonTapped(_ sender: UIButton) {
-
         let context = CoreDataStack.shared.context
         let newAppt = Appointment(context: context)
 
-//        newAppt.titleText  = titleField.text
         newAppt.petName    = petField.text
         newAppt.dateText   = dateField.text
         newAppt.timeText   = timeField.text
         newAppt.clinicName = clinicField.text
         newAppt.notes      = notesField.text
+        
+        // Save Relationship
+        if let pet = selectedPet {
+            newAppt.pet = pet
+        }
 
         CoreDataStack.shared.saveContext()
-
-        // Go back to list
         navigationController?.popViewController(animated: true)
     }
 }
 
+// MARK: - Picker Delegate
 extension AddAppointmentViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
     
@@ -208,7 +200,7 @@ extension AddAppointmentViewController: UIPickerViewDelegate, UIPickerViewDataSo
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return pets[row].name
+        return pets[row].name ?? "Unknown Pet"
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {

@@ -10,17 +10,12 @@ import CoreData
 
 class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
 
-    // MARK: - Data Injection
     var appointment: Appointment!
 
-    // MARK: - Outlets
-    
-    // Header (New!)
     @IBOutlet weak var petImageView: UIImageView!
     @IBOutlet weak var petNameLabel: UILabel!
     @IBOutlet weak var petBreedLabel: UILabel!
     
-    // Form Fields
     @IBOutlet weak var petField: UITextField!
     @IBOutlet weak var dateField: UITextField!
     @IBOutlet weak var timeField: UITextField!
@@ -28,12 +23,10 @@ class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var notesField: UITextField!
     @IBOutlet weak var saveButton: UIButton!
     
-    // MARK: - Properties
     let datePicker = UIDatePicker()
     let timePicker = UIDatePicker()
     let petPicker = UIPickerView()
     
-    // Data source for the dropdown
     var pets: [Pet] = []
     var selectedPet: Pet?
     
@@ -45,26 +38,34 @@ class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
                !(notesField.text?.isEmpty ?? true)
     }
 
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Edit Appointment"
         
-        loadDummyData()
+        fetchPets()
+        
         setupUI()
         setupInputViews()
         setupButton()
-        
-        // Populate the screen with existing data
         populateFields()
         
-        // Listeners
         [clinicField, notesField].forEach {
             $0?.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         }
         
-        // Delegates for auto-fill logic
         [petField, dateField, timeField].forEach { $0?.delegate = self }
+    }
+    
+    // MARK: - Core Data Fetch
+    func fetchPets() {
+        let context = CoreDataStack.shared.context
+        let request: NSFetchRequest<Pet> = Pet.fetchRequest()
+        do {
+            pets = try context.fetch(request)
+            petPicker.reloadAllComponents()
+        } catch {
+            print("Error fetching pets: \(error)")
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -83,15 +84,12 @@ class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
         validateForm()
     }
 
-    // MARK: - Setup & Population
     func populateFields() {
         guard let appt = appointment else { return }
         
-        // 1. Populate the Header
         let name = appt.petName ?? "Unknown"
         petNameLabel.text = name
         
-        // Simple logic to set image/breed based on name
         if name.lowercased().contains("milo") {
             petImageView.image = UIImage(named: "milo-avatar")
             petBreedLabel.text = "Golden Retriever"
@@ -103,27 +101,17 @@ class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
             petBreedLabel.text = "Pet"
         }
         
-        // Style the header image
         petImageView.layer.cornerRadius = 30
         petImageView.clipsToBounds = true
         petImageView.contentMode = .scaleAspectFill
         
-        // 2. Populate the Form Fields
         petField.text    = appt.petName
         dateField.text   = appt.dateText
         timeField.text   = appt.timeText
         clinicField.text = appt.clinicName
         notesField.text  = appt.notes
         
-        // Validate immediately so the button is enabled
         validateForm()
-    }
-    
-    func loadDummyData() {
-        pets = [
-            Pet(name: "Milo", imageName: "milo-avatar"),
-            Pet(name: "Whiskers", imageName: "whiskers-avatar")
-        ]
     }
     
     func setupButton() {
@@ -158,24 +146,20 @@ class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
     }
 
     func setupInputViews() {
-        // Date Picker
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .wheels
         datePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
         dateField.inputView = datePicker
         
-        // Time Picker
         timePicker.datePickerMode = .time
         timePicker.preferredDatePickerStyle = .wheels
         timePicker.addTarget(self, action: #selector(timeChanged), for: .valueChanged)
         timeField.inputView = timePicker
         
-        // Pet Picker
         petPicker.delegate = self
         petPicker.dataSource = self
         petField.inputView = petPicker
         
-        // Toolbar
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
         let doneBtn = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))
@@ -187,7 +171,6 @@ class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
         petField.inputAccessoryView = toolbar
     }
     
-    // MARK: - Auto-fill on Tap
     func textFieldDidBeginEditing(_ textField: UITextField) {
         if textField == dateField && (textField.text?.isEmpty ?? true) {
             dateChanged()
@@ -195,7 +178,6 @@ class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
             timeChanged()
         } else if textField == petField && (textField.text?.isEmpty ?? true) {
             if !pets.isEmpty {
-                // If they decide to change the pet, default to first option
                 selectedPet = pets[0]
                 petField.text = selectedPet?.name
                 validateForm()
@@ -203,7 +185,6 @@ class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
         }
     }
 
-    // MARK: - Actions
     @objc func dateChanged() {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM/dd/yyyy"
@@ -223,19 +204,21 @@ class EditAppointmentViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func saveButtonTapped(_ sender: UIButton) {
-        // Update the EXISTING object (no new context creation)
         appointment.petName    = petField.text
         appointment.dateText   = dateField.text
         appointment.timeText   = timeField.text
         appointment.clinicName = clinicField.text
         appointment.notes      = notesField.text
+        
+        if let pet = selectedPet {
+            appointment.pet = pet
+        }
 
         CoreDataStack.shared.saveContext()
         navigationController?.popViewController(animated: true)
     }
 }
 
-// MARK: - Picker Delegate
 extension EditAppointmentViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
     
@@ -244,16 +227,15 @@ extension EditAppointmentViewController: UIPickerViewDelegate, UIPickerViewDataS
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return pets[row].name
+        return pets[row].name ?? "Unknown"
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         selectedPet = pets[row]
         petField.text = selectedPet?.name
         
-        // Update header dynamically if they change the pet dropdown
         petNameLabel.text = selectedPet?.name
-        if let name = selectedPet?.name.lowercased() {
+        if let name = selectedPet?.name?.lowercased() {
             if name.contains("milo") {
                 petImageView.image = UIImage(named: "milo-avatar")
                 petBreedLabel.text = "Golden Retriever"

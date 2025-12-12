@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24411" systemVersion="25C5048a" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
-    <entity name="Appointment" representedClassName=".Appointment" syncable="YES" codeGenerationType="class">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="25B78" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Appointment" representedClassName=".Appointment" syncable="YES">
         <attribute name="clinicName" optional="YES" attributeType="String"/>
         <attribute name="dateText" optional="YES" attributeType="String"/>
         <attribute name="notes" optional="YES" attributeType="String"/>
         <attribute name="petName" optional="YES" attributeType="String"/>
         <attribute name="timeText" optional="YES" attributeType="String"/>
         <attribute name="titleText" optional="YES" attributeType="String"/>
+        <relationship name="pet" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Pet" inverseName="appointments" inverseEntity="Pet"/>
+    </entity>
+    <entity name="Pet" representedClassName="Pet" syncable="YES">
+        <attribute name="breed" optional="YES" attributeType="String"/>
+        <attribute name="dob" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="imageName" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="weight" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="appointments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Appointment" inverseName="pet" inverseEntity="Appointment"/>
     </entity>
 </model>

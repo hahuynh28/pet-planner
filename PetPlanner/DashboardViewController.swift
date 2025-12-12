@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 class DashboardViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -14,11 +15,7 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
     @IBOutlet weak var alertsButton: UIButton!
     @IBOutlet weak var searchButton: UIButton!
     
-    // sample pets
-    let pets: [Pet] = [
-        Pet(name: "Milo",      imageName: "milo-avatar"),
-        Pet(name: "Whiskers",  imageName: "whiskers-avatar")
-    ]
+    var pets: [Pet] = []
     
     struct Event {
         let title: String
@@ -46,6 +43,8 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
         searchButton.applyShadow(opacity: 0.2, y: 3, blur: 6)
         searchButton.makeRound(radius: 12)
         tableView.separatorStyle = .none  // Hides lines so cards look floating
+        
+        createDummyPetsIfNeeded()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -68,12 +67,45 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
         super.viewWillAppear(animated)
         // Hide the nav bar on the Dashboard
         navigationController?.setNavigationBarHidden(true, animated: animated)
+        fetchPets()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         // Show it again when leaving (e.g., going to Pet Profile)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
+    func fetchPets() {
+        let context = CoreDataStack.shared.context
+        let request: NSFetchRequest<Pet> = Pet.fetchRequest()
+        
+        do {
+            pets = try context.fetch(request)
+            collectionView.reloadData()
+        } catch {
+            print("Error fetching pets: \(error)")
+        }
+    }
+    
+    func createDummyPetsIfNeeded() {
+        let context = CoreDataStack.shared.context
+        let request: NSFetchRequest<Pet> = Pet.fetchRequest()
+        
+        if (try? context.count(for: request)) == 0 {
+            let p1 = Pet(context: context)
+            p1.name = "Milo"
+            p1.imageName = "milo-avatar"
+            p1.breed = "Golden Retriever"
+            
+            let p2 = Pet(context: context)
+            p2.name = "Whiskers"
+            p2.imageName = "whiskers-avatar"
+            p2.breed = "Tabby Cat"
+            
+            CoreDataStack.shared.saveContext()
+            fetchPets()
+        }
     }
 }
 
@@ -93,16 +125,25 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
 
         if indexPath.item < pets.count {
             let pet = pets[indexPath.item]
-            cell.nameLabel.text = pet.name
-            cell.petImageView.image = UIImage(named: pet.imageName)
+            cell.nameLabel.text = pet.name ?? "Unknown"
+                        
+            if let imgName = pet.imageName {
+                cell.petImageView.image = UIImage(named: imgName)
+            } else {
+                cell.petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+            }
+            
+            // Reset style from "Add" cell
+            cell.petImageView.backgroundColor = .clear
+            cell.petImageView.layer.borderWidth = 0
+            cell.petImageView.contentMode = .scaleAspectFill
         } else {
             // Last cell = Add Pet
             cell.nameLabel.text = "Add Pet"
             cell.petImageView.image = UIImage(systemName: "plus")
-            cell.petImageView.backgroundColor = UIColor.systemGray6 // Light gray background
-            cell.petImageView.tintColor = UIColor.gray // Gray plus icon
-            cell.petImageView.contentMode = .center // Keep the plus icon centered and small
-            cell.petImageView.layer.borderWidth = 0
+            cell.petImageView.backgroundColor = UIColor.systemGray6
+            cell.petImageView.tintColor = UIColor.gray
+            cell.petImageView.contentMode = .center
         }
         return cell
     }
@@ -117,8 +158,7 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView,
                         didSelectItemAt indexPath: IndexPath) {
         if indexPath.item < pets.count {
-            // existing pet selected – storyboard team will hook segue to PetProfileVC
-            print("Selected pet: \(pets[indexPath.item].name)")
+            print("Selected pet: \(pets[indexPath.item].name ?? "Unknown")")
         } else {
             // Add Pet cell tapped – storyboard team can show Add Pet form
             print("Add Pet tapped")
