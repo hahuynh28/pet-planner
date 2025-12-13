@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import CoreLocation
 
-class FinderSearchViewController: UIViewController {
+class FinderSearchViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
 
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var contentView: UIView!
@@ -24,14 +25,169 @@ class FinderSearchViewController: UIViewController {
     @IBOutlet weak var specialtyButton: UIButton!
     @IBOutlet weak var clinicListStackView: UIStackView!
     
-    var selectedClinic: Clinic?
+    let locationManager = CLLocationManager()
+    var userLocation: CLLocation?
+    var selectedClinic: VetClinic?
+    
+    enum FilterType {
+        case all
+        case emergency
+        case specialty
+    }
+    
+    var activeFilter: FilterType = .all
+    var filteredClinics: [VetClinic] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSearchUI()
         setupFilterUI()
         setupLayoutConstraints()
-        addClinicCards()
+//        addClinicCards()
+        searchTextField.delegate = self
+        searchTextField.addTarget(self, action: #selector(searchTextChanged), for: .editingChanged)
+        
+        // Setup Location
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+        
+        // Initial Render
+//        filteredClinics = VetClinic.sharedClinics
+//        renderCards()
+        
+        applyFilters()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        self.userLocation = location
+        // Refresh cards to show new distance
+        renderCards()
+    }
+    
+//    @objc func searchTextChanged() {
+//        let text = searchTextField.text ?? ""
+//        if text.isEmpty {
+//            filteredClinics = VetClinic.sharedClinics
+//        } else {
+//            // Filter the shared list
+//            filteredClinics = VetClinic.sharedClinics.filter {
+//                $0.name.lowercased().contains(text.lowercased()) ||
+//                $0.address.lowercased().contains(text.lowercased())
+//            }
+//        }
+//        renderCards()
+//    }
+    
+    @objc func searchTextChanged() {
+        applyFilters()
+    }
+    
+    func applyFilters() {
+        let text = searchTextField.text?.lowercased() ?? ""
+        
+        filteredClinics = VetClinic.sharedClinics.filter { clinic in
+            // 1. Check Search Text
+            let matchesText = text.isEmpty ||
+                              clinic.name.lowercased().contains(text) ||
+                              clinic.address.lowercased().contains(text)
+            
+            // 2. Check Button Filter
+            let matchesCategory: Bool
+            switch activeFilter {
+            case .all:
+                matchesCategory = true
+            case .emergency:
+                matchesCategory = clinic.services.contains("Emergency")
+            case .specialty:
+                // Matches keywords for "Specialty" services
+                matchesCategory = clinic.services.contains("Surgery") ||
+                                  clinic.services.contains("Dentistry") ||
+                                  clinic.services.contains("Feline") ||
+                                  clinic.services.contains("Imaging")
+            }
+            
+            return matchesText && matchesCategory
+        }
+        
+        renderCards()
+    }
+    
+    @objc func didTapAll() {
+        updateActiveFilter(.all)
+    }
+    
+    @objc func didTapEmergency() {
+        updateActiveFilter(.emergency)
+    }
+    
+    @objc func didTapSpecialty() {
+        updateActiveFilter(.specialty)
+    }
+    
+    func updateActiveFilter(_ type: FilterType) {
+        activeFilter = type
+        updateButtonStyles()
+        applyFilters()
+    }
+    
+    func updateButtonStyles() {
+        // Helper to reset style
+        let setStyle = { (btn: UIButton, isActive: Bool) in
+            if isActive {
+                btn.backgroundColor = UIColor(named: "BrandPurple")
+                btn.setTitleColor(.white, for: .normal)
+            } else {
+                btn.backgroundColor = .systemGray5
+                btn.setTitleColor(.darkGray, for: .normal)
+            }
+        }
+        
+        setStyle(allButton, activeFilter == .all)
+        setStyle(emergencyButton, activeFilter == .emergency)
+        setStyle(specialtyButton, activeFilter == .specialty)
+    }
+    
+    func renderCards() {
+        // Clear existing cards
+        clinicListStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        clinicListStackView.axis = .vertical
+        clinicListStackView.spacing = 16
+        
+        if filteredClinics.isEmpty {
+            // Optional: Show a "No Results" label
+            let label = UILabel()
+            label.text = "No clinics found."
+            label.textAlignment = .center
+            label.textColor = .secondaryLabel
+            clinicListStackView.addArrangedSubview(label)
+            return
+        }
+        
+        for clinic in filteredClinics {
+            // Calculate Distance
+            var distanceText = "Calculating..."
+            if let userLoc = userLocation {
+                let distInMeters = userLoc.distance(from: clinic.location)
+                let distInKm = distInMeters / 1000.0
+                distanceText = String(format: "%.1f km", distInKm)
+            }
+            
+            let card = ClinicCardView(
+                name: clinic.name,
+                services: clinic.services,
+                distance: distanceText,
+                rating: "\(clinic.rating) (\(clinic.reviewsCount))"
+            )
+            
+            card.onTap = { [weak self] in
+                self?.selectedClinic = clinic
+                self?.openVetDetails()
+            }
+            
+            clinicListStackView.addArrangedSubview(card)
+        }
     }
 
     func setupSearchUI() {
@@ -62,17 +218,24 @@ class FinderSearchViewController: UIViewController {
         filterStackView.distribution = .fillEqually
         filterStackView.spacing = 12
 
-        allButton.backgroundColor = .brandPurple
-        allButton.setTitleColor(.white, for: .normal)
-        allButton.layer.cornerRadius = 10
-
-        emergencyButton.backgroundColor = .systemGray5
-        emergencyButton.setTitleColor(.darkGray, for: .normal)
-        emergencyButton.layer.cornerRadius = 10
-
-        specialtyButton.backgroundColor = .systemGray5
-        specialtyButton.setTitleColor(.darkGray, for: .normal)
-        specialtyButton.layer.cornerRadius = 10
+        // Style & Add Actions
+        setupButton(allButton, title: "All")
+        allButton.addTarget(self, action: #selector(didTapAll), for: .touchUpInside)
+        
+        setupButton(emergencyButton, title: "Emergency")
+        emergencyButton.addTarget(self, action: #selector(didTapEmergency), for: .touchUpInside)
+        
+        setupButton(specialtyButton, title: "Specialty")
+        specialtyButton.addTarget(self, action: #selector(didTapSpecialty), for: .touchUpInside)
+        
+        // Set initial state
+        updateButtonStyles()
+    }
+    
+    func setupButton(_ button: UIButton, title: String) {
+        button.setTitle(title, for: .normal)
+        button.layer.cornerRadius = 10
+        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)
     }
 
     func setupLayoutConstraints() {
@@ -134,84 +297,87 @@ class FinderSearchViewController: UIViewController {
         ])
     }
     
-    func addClinicCards() {
-
-        let clinic1 = Clinic(
-            name: "Brampton Veterinary Clinic",
-            services: "Routine • Surgery • Dentistry",
-            distance: "1.5 km",
-            rating: "★ 4.8 (215 reviews)",
-            address: "123 Main Street, Brampton, ON",
-            phone: "(905) 123-4567",
-            website: "bramptonvet.com",
-            imageName: "milo-avatar"
-        )
-
-        let clinic2 = Clinic(
-            name: "Heartwood Animal Hospital",
-            services: "Emergency • Imaging • Vaccinations",
-            distance: "3.2 km",
-            rating: "★ 4.5 (88 reviews)",
-            address: "456 Queen St, Brampton",
-            phone: "(905) 555-2222",
-            website: "heartwoodvet.com",
-            imageName: "milo-avatar"
-        )
-
-        let clinic3 = Clinic(
-            name: "The Cat Clinic of Brampton",
-            services: "Feline Focus • Wellness Exams",
-            distance: "4.1 km",
-            rating: "★ 4.9 (23 reviews)",
-            address: "789 King St, Brampton",
-            phone: "(905) 999-8888",
-            website: "catclinic.com",
-            imageName: "milo-avatar"
-        )
-
-        let card1 = ClinicCardView(
-            name: clinic1.name,
-            services: clinic1.services,
-            distance: clinic1.distance,
-            rating: clinic1.rating
-        )
-
-        card1.onTap = { [weak self] in
-            self?.selectedClinic = clinic1
-            self?.openVetDetails()
-        }
-
-        let card2 = ClinicCardView(
-            name: clinic2.name,
-            services: clinic2.services,
-            distance: clinic2.distance,
-            rating: clinic2.rating
-        )
-
-        card2.onTap = { [weak self] in
-            self?.selectedClinic = clinic2
-            self?.openVetDetails()
-        }
-
-        let card3 = ClinicCardView(
-            name: clinic3.name,
-            services: clinic3.services,
-            distance: clinic3.distance,
-            rating: clinic3.rating
-        )
-
-        card3.onTap = { [weak self] in
-            self?.selectedClinic = clinic3
-            self?.openVetDetails()
-        }
-
-        clinicListStackView.axis = .vertical
-        clinicListStackView.spacing = 16
-
-        [card1, card2, card3].forEach {
-            clinicListStackView.addArrangedSubview($0)
-        }
-    }
+//    func addClinicCards() {
+//
+//        let clinic1 = VetClinic(
+//            name: "Brampton Veterinary Clinic",
+//            services: "Routine • Surgery • Dentistry",
+//            distance: "1.5 km",
+//            rating: "★ 4.8 (215 reviews)",
+//            reviews: 215,
+//            address: "123 Main Street, Brampton, ON",
+//            phone: "(905) 123-4567",
+//            website: "bramptonvet.com",
+//            imageName: "milo-avatar"
+//        )
+//
+//        let clinic2 = VetClinic(
+//            name: "Heartwood Animal Hospital",
+//            services: "Emergency • Imaging • Vaccinations",
+//            distance: "3.2 km",
+//            rating: "★ 4.5 (88 reviews)",
+//            reviews: 88,
+//            address: "456 Queen St, Brampton",
+//            phone: "(905) 555-2222",
+//            website: "heartwoodvet.com",
+//            imageName: "milo-avatar"
+//        )
+//
+//        let clinic3 = VetClinic(
+//            name: "The Cat Clinic of Brampton",
+//            services: "Feline Focus • Wellness Exams",
+//            distance: "4.1 km",
+//            rating: "★ 4.9 (23 reviews)",
+//            reviews: 23,
+//            address: "789 King St, Brampton",
+//            phone: "(905) 999-8888",
+//            website: "catclinic.com",
+//            imageName: "milo-avatar"
+//        )
+//
+//        let card1 = ClinicCardView(
+//            name: clinic1.name,
+//            services: clinic1.services,
+//            distance: clinic1.distance,
+//            rating: "\(clinic1.rating) (\(clinic1.reviews))"
+//        )
+//
+//        card1.onTap = { [weak self] in
+//            self?.selectedClinic = clinic1
+//            self?.openVetDetails()
+//        }
+//
+//        let card2 = ClinicCardView(
+//            name: clinic2.name,
+//            services: clinic2.services,
+//            distance: clinic2.distance,
+//            rating: clinic2.rating
+//        )
+//
+//        card2.onTap = { [weak self] in
+//            self?.selectedClinic = clinic2
+//            self?.openVetDetails()
+//        }
+//
+//        let card3 = ClinicCardView(
+//            name: clinic3.name,
+//            services: clinic3.services,
+//            distance: clinic3.distance,
+//            rating: clinic3.rating
+//        )
+//
+//        card3.onTap = { [weak self] in
+//            self?.selectedClinic = clinic3
+//            self?.openVetDetails()
+//        }
+//
+//        clinicListStackView.axis = .vertical
+//        clinicListStackView.spacing = 16
+//
+//        [card1, card2, card3].forEach {
+//            clinicListStackView.addArrangedSubview($0)
+//        }
+//    }
 
     
     func openVetDetails() {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="sXj-ZY-Hzf">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="sXj-ZY-Hzf">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Map view configurations" minToolsVersion="14.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -37,19 +37,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="UwP-lE-HNK">
-                                <rect key="frame" x="148" y="217" width="97" height="34"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Location" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qKO-Uw-JLj">
-                                <rect key="frame" x="20" y="75" width="57" height="17"/>
+                                <rect key="frame" x="20" y="134" width="57" height="17"/>
                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                 <color key="textColor" name="TextSecondary"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="XCU-WQ-tUl">
-                                <rect key="frame" x="257" y="75" width="116" height="50"/>
+                                <rect key="frame" x="257" y="134" width="116" height="50"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1CF-zp-gQs">
                                         <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
@@ -77,13 +72,13 @@
                                 </subviews>
                             </stackView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Toronto, Ontario" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JQP-0v-Tg9">
-                                <rect key="frame" x="20" y="96" width="153" height="24"/>
+                                <rect key="frame" x="20" y="155" width="153" height="24"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                 <color key="textColor" name="TextPrimary"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OKR-Q9-4NJ">
-                                <rect key="frame" x="0.0" y="156" width="393" height="662"/>
+                                <rect key="frame" x="0.0" y="215" width="393" height="569"/>
                                 <standardMapConfiguration key="preferredConfiguration"/>
                             </mapView>
                         </subviews>
@@ -99,16 +94,17 @@
                             <constraint firstItem="XCU-WQ-tUl" firstAttribute="top" secondItem="SEu-dJ-9of" secondAttribute="top" constant="16" id="JYJ-dT-812"/>
                             <constraint firstItem="JQP-0v-Tg9" firstAttribute="top" secondItem="qKO-Uw-JLj" secondAttribute="bottom" constant="4" id="MGb-Sg-IwH"/>
                             <constraint firstItem="OKR-Q9-4NJ" firstAttribute="top" secondItem="XCU-WQ-tUl" secondAttribute="bottom" constant="31" id="Yaj-kT-2mG"/>
-                            <constraint firstItem="OKR-Q9-4NJ" firstAttribute="centerX" secondItem="UwP-lE-HNK" secondAttribute="centerX" id="aPf-g2-jc1"/>
-                            <constraint firstItem="UwP-lE-HNK" firstAttribute="leading" secondItem="SEu-dJ-9of" secondAttribute="leading" constant="148" id="bhF-6u-S9Q"/>
                             <constraint firstItem="OKR-Q9-4NJ" firstAttribute="bottom" secondItem="SEu-dJ-9of" secondAttribute="bottom" id="k9S-F5-grq"/>
-                            <constraint firstItem="UwP-lE-HNK" firstAttribute="top" secondItem="JQP-0v-Tg9" secondAttribute="bottom" constant="97" id="oQ1-Im-rad"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Finder" id="cgU-4L-fnz"/>
                     <nil key="simulatedTopBarMetrics"/>
                     <connections>
+                        <outlet property="alertsButton" destination="q21-NX-8My" id="9lU-HZ-jQm"/>
+                        <outlet property="locationLabel" destination="JQP-0v-Tg9" id="fm4-FU-vuF"/>
                         <outlet property="mapView" destination="OKR-Q9-4NJ" id="upJ-X9-WrN"/>
+                        <outlet property="searchButton" destination="1CF-zp-gQs" id="ND3-K6-fse"/>
+                        <segue destination="9nN-nT-rFu" kind="showDetail" identifier="showMapDetail" id="3Pd-5u-UlY"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="p9v-em-1Kd" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -224,7 +220,7 @@
             <objects>
                 <viewController storyboardIdentifier="VetDetailsViewController" title="Vet Details" id="9nN-nT-rFu" customClass="VetDetailsViewController" customModule="PetPlanner" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="r7V-br-6Od">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="783"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jlX-zJ-lMg">
@@ -400,9 +396,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9YE-Jt-Uol" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1532" y="-266"/>
+            <point key="canvasLocation" x="873" y="-971"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="3Pd-5u-UlY"/>
+    </inferredMetricsTieBreakers>
     <color key="tintColor" name="BrandPurple"/>
     <resources>
         <image name="bell" catalog="system" width="125" height="128"/>
