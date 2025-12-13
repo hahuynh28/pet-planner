@@ -9,10 +9,10 @@ import Foundation
 import CoreLocation
 
 // Simple in-memory model for a pet
-struct Pet {
-    let name: String
-    let imageName: String
-}
+//struct Pet {
+//    let name: String
+//    let imageName: String
+//}
 
 struct Review {
     let author: String

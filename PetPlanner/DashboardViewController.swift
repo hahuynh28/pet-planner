@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 class DashboardViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -14,25 +15,22 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
     @IBOutlet weak var alertsButton: UIButton!
     @IBOutlet weak var searchButton: UIButton!
     
-    // sample pets
-    let pets: [Pet] = [
-        Pet(name: "Milo",      imageName: "milo-avatar"),
-        Pet(name: "Whiskers",  imageName: "whiskers-avatar")
-    ]
+    var pets: [Pet] = []
+    var appointments: [Appointment] = []
     
-    struct Event {
-        let title: String
-        let pet: String
-        let date: String
-        let hasBadge: Bool
-        let image: String
-    }
-    
-    let events: [Event] = [
-        Event(title: "Medication: Apoquel", pet: "Milo", date: "Wed, Nov 5", hasBadge: true, image: "milo-avatar"),
-        Event(title: "Annual Check-up", pet: "Whiskers", date: "Fri, Dec 12", hasBadge: false, image: "whiskers-avatar"),
-        Event(title: "Grooming", pet: "Milo", date: "Sat, Dec 20", hasBadge: false, image: "milo-avatar")
-    ]
+//    struct Event {
+//        let title: String
+//        let pet: String
+//        let date: String
+//        let hasBadge: Bool
+//        let image: String
+//    }
+//    
+//    let events: [Event] = [
+//        Event(title: "Medication: Apoquel", pet: "Milo", date: "Wed, Nov 5", hasBadge: true, image: "milo-avatar"),
+//        Event(title: "Annual Check-up", pet: "Whiskers", date: "Fri, Dec 12", hasBadge: false, image: "whiskers-avatar"),
+//        Event(title: "Grooming", pet: "Milo", date: "Sat, Dec 20", hasBadge: false, image: "milo-avatar")
+//    ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,20 +44,22 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
         searchButton.applyShadow(opacity: 0.2, y: 3, blur: 6)
         searchButton.makeRound(radius: 12)
         tableView.separatorStyle = .none  // Hides lines so cards look floating
+        
+        createDummyPetsIfNeeded()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return events.count
+        return appointments.count
     }
 
-    // 5. Build each card
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "EventCell", for: indexPath) as! EventCell
         
-        let event = events[indexPath.row]
+        let appointment = appointments[indexPath.row]
+        cell.configure(with: appointment) // Now passes the Core Data object
         
-        // Use the configure function we wrote in Part A
-        cell.configure(with: event)
+        cell.backgroundColor = .clear
+        cell.selectionStyle = .none
         
         return cell
     }
@@ -68,12 +68,50 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
         super.viewWillAppear(animated)
         // Hide the nav bar on the Dashboard
         navigationController?.setNavigationBarHidden(true, animated: animated)
+        fetchData()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         // Show it again when leaving (e.g., going to Pet Profile)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
+    func fetchData() {
+        let context = CoreDataStack.shared.context
+        do {
+            pets = try context.fetch(Pet.fetchRequest())
+            collectionView.reloadData()
+        } catch { print("Error fetching pets: \(error)") }
+        
+        // 2. Fetch Appointments
+        do {
+            let request: NSFetchRequest<Appointment> = Appointment.fetchRequest()
+            // Optional: Sort by creation or date string (Primitive sort)
+            // Ideally we would sort by a real Date object, but this works for now
+            appointments = try context.fetch(request)
+            tableView.reloadData()
+        } catch { print("Error fetching appointments: \(error)") }
+    }
+    
+    func createDummyPetsIfNeeded() {
+        let context = CoreDataStack.shared.context
+        let request: NSFetchRequest<Pet> = Pet.fetchRequest()
+        
+        if (try? context.count(for: request)) == 0 {
+            let p1 = Pet(context: context)
+            p1.name = "Milo"
+            p1.imageName = "milo-avatar"
+            p1.breed = "Golden Retriever"
+            
+            let p2 = Pet(context: context)
+            p2.name = "Whiskers"
+            p2.imageName = "whiskers-avatar"
+            p2.breed = "Tabby Cat"
+            
+            CoreDataStack.shared.saveContext()
+            fetchData()
+        }
     }
 }
 
@@ -93,16 +131,38 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
 
         if indexPath.item < pets.count {
             let pet = pets[indexPath.item]
-            cell.nameLabel.text = pet.name
-            cell.petImageView.image = UIImage(named: pet.imageName)
+            cell.nameLabel.text = pet.name ?? "Unknown"
+            
+            cell.petImageView.tintColor = UIColor(named: "BrandPurple")
+                        
+            if let imgName = pet.imageName {
+                // Check if it's an Asset (like "milo-avatar") or a Disk File (UUID)
+                if let assetImage = UIImage(named: imgName) {
+                    cell.petImageView.image = assetImage
+                } else {
+                    // Try loading from Disk
+                    let filename = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(imgName)
+                    if let diskImage = UIImage(contentsOfFile: filename.path) {
+                        cell.petImageView.image = diskImage
+                    } else {
+                        cell.petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+                    }
+                }
+            } else {
+                cell.petImageView.image = UIImage(systemName: "pawprint.circle.fill")
+            }
+            
+            // Reset style from "Add" cell
+            cell.petImageView.backgroundColor = .clear
+            cell.petImageView.layer.borderWidth = 0
+            cell.petImageView.contentMode = .scaleAspectFill
         } else {
             // Last cell = Add Pet
             cell.nameLabel.text = "Add Pet"
             cell.petImageView.image = UIImage(systemName: "plus")
-            cell.petImageView.backgroundColor = UIColor.systemGray6 // Light gray background
-            cell.petImageView.tintColor = UIColor.gray // Gray plus icon
-            cell.petImageView.contentMode = .center // Keep the plus icon centered and small
-            cell.petImageView.layer.borderWidth = 0
+            cell.petImageView.backgroundColor = UIColor.systemGray6
+            cell.petImageView.tintColor = UIColor.gray
+            cell.petImageView.contentMode = .center
         }
         return cell
     }
@@ -117,11 +177,26 @@ extension DashboardViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView,
                         didSelectItemAt indexPath: IndexPath) {
         if indexPath.item < pets.count {
-            // existing pet selected – storyboard team will hook segue to PetProfileVC
-            print("Selected pet: \(pets[indexPath.item].name)")
+            let selectedPet = pets[indexPath.item]
+            performSegue(withIdentifier: "showPetProfile", sender: selectedPet)
         } else {
-            // Add Pet cell tapped – storyboard team can show Add Pet form
-            print("Add Pet tapped")
+            performSegue(withIdentifier: "showAddPet", sender: nil)
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showPetProfile",
+           let dest = segue.destination as? PetDetailsViewController,
+           let pet = sender as? Pet {
+            
+            dest.pet = pet
+            let backItem = UIBarButtonItem()
+            backItem.title = "Back"
+            navigationItem.backBarButtonItem = backItem
+        } else if segue.identifier == "showAddPet" {
+            let backItem = UIBarButtonItem()
+            backItem.title = "Back"
+            navigationItem.backBarButtonItem = backItem
         }
     }
 }
