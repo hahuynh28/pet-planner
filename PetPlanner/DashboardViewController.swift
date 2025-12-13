@@ -7,13 +7,17 @@
 
 import UIKit
 import CoreData
+import CoreLocation
 
-class DashboardViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class DashboardViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var alertsButton: UIButton!
     @IBOutlet weak var searchButton: UIButton!
+    @IBOutlet weak var locationLabel: UILabel!
+    
+    let locationManager = CLLocationManager()
     
     var pets: [Pet] = []
     var appointments: [Appointment] = []
@@ -34,6 +38,8 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        setupLocation()
         collectionView.dataSource = self
         collectionView.delegate   = self
         tableView.dataSource = self
@@ -46,6 +52,37 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
         tableView.separatorStyle = .none  // Hides lines so cards look floating
         
         createDummyPetsIfNeeded()
+    }
+    
+    func setupLocation() {
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        
+        // Reverse Geocode to get City name
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
+            
+            guard let self = self,
+                  let placemark = placemarks?.first,
+                  error == nil else { return }
+            
+            let city = placemark.locality ?? "Unknown"
+            let region = placemark.administrativeArea ?? ""
+            
+            // Update Label on Main Thread
+            DispatchQueue.main.async {
+                if region.isEmpty {
+                    self.locationLabel.text = city
+                } else {
+                    self.locationLabel.text = "\(city), \(region)"
+                }
+            }
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -103,11 +140,13 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
             p1.name = "Milo"
             p1.imageName = "milo-avatar"
             p1.breed = "Golden Retriever"
+            p1.dob = Calendar.current.date(byAdding: .year, value: -3, to: Date())
             
             let p2 = Pet(context: context)
             p2.name = "Whiskers"
             p2.imageName = "whiskers-avatar"
             p2.breed = "Tabby Cat"
+            p2.dob = Calendar.current.date(byAdding: .year, value: -1, to: Date())
             
             CoreDataStack.shared.saveContext()
             fetchData()

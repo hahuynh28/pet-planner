@@ -258,6 +258,7 @@
                     <connections>
                         <outlet property="alertsButton" destination="Ad4-IJ-zyQ" id="Tvv-b8-VTu"/>
                         <outlet property="collectionView" destination="5PJ-OY-Zfu" id="nGe-am-j5m"/>
+                        <outlet property="locationLabel" destination="AYU-Sj-KXf" id="tor-QS-ez3"/>
                         <outlet property="searchButton" destination="Arj-83-4ZY" id="puh-o7-xfw"/>
                         <outlet property="tableView" destination="REX-TG-Xwf" id="2yO-s7-g3y"/>
                         <segue destination="z8o-c8-RxE" kind="show" identifier="showPetProfile" id="YE1-Rd-o8V"/>
