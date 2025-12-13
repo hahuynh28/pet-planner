@@ -13,7 +13,6 @@ class CoreDataStack {
     static let shared = CoreDataStack()
     private init() {}
 
-    // container name MUST match the .xcdatamodeld file name
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "PetCareModel")
         container.loadPersistentStores { _, error in

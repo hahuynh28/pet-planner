@@ -55,7 +55,6 @@ class VetDetailsViewController: UIViewController {
         let gradient = CAGradientLayer()
         let brandColor = UIColor(named: "BrandPurple") ?? .systemPurple
         
-        // 2. Create a subtle gradient (Purple -> Slightly Darker Purple)
         let topColor = brandColor.cgColor
         let bottomColor = brandColor.withAlphaComponent(0.8).cgColor
         
@@ -136,7 +135,7 @@ class VetDetailsViewController: UIViewController {
         if let url = URL(string: "tel://\(cleanPhone)"), UIApplication.shared.canOpenURL(url) {
             UIApplication.shared.open(url)
         } else {
-            // Fallback for Simulator (Simulators can't make calls)
+            // Fallback for Simulator
             let alert = UIAlertController(title: "Call Clinic", message: "Calling \(phone)...", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
@@ -144,15 +143,12 @@ class VetDetailsViewController: UIViewController {
     }
     
     @objc func emailTapped() {
-        // Generate a fake email since our model doesn't store one
-        // e.g. "bramptonvet.com" -> "info@bramptonvet.com"
         let domain = clinic?.website ?? "gmail.com"
         let email = "info@\(domain)"
         
         if let url = URL(string: "mailto:\(email)"), UIApplication.shared.canOpenURL(url) {
             UIApplication.shared.open(url)
         } else {
-            // Fallback if no Mail app is installed or on Simulator
             let alert = UIAlertController(title: "Email Clinic", message: "Drafting email to \(email)...", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
@@ -174,10 +170,8 @@ class VetDetailsViewController: UIViewController {
     }
     
     private func setupReviews() {
-        // 1. Clear the dummy "George" and "Lisa" labels from Storyboard
         reviewsCardView.subviews.forEach { $0.removeFromSuperview() }
         
-        // 2. Add Header ("Recent Reviews" & "View All")
         let headerStack = UIStackView()
         headerStack.axis = .horizontal
         headerStack.distribution = .equalSpacing
@@ -196,13 +190,11 @@ class VetDetailsViewController: UIViewController {
         headerStack.addArrangedSubview(viewAllButton)
         reviewsCardView.addSubview(headerStack)
         
-        // 3. Add Review Rows
         let reviewsStack = UIStackView()
         reviewsStack.axis = .vertical
         reviewsStack.spacing = 16
         reviewsStack.translatesAutoresizingMaskIntoConstraints = false
         
-        // Loop through the data (Take top 2)
         if let reviews = clinic?.reviewsList.prefix(2) {
             for review in reviews {
                 let rowStack = UIStackView()
@@ -227,7 +219,6 @@ class VetDetailsViewController: UIViewController {
         
         reviewsCardView.addSubview(reviewsStack)
         
-        // 4. Constraints for inner items
         NSLayoutConstraint.activate([
             headerStack.topAnchor.constraint(equalTo: reviewsCardView.topAnchor, constant: 16),
             headerStack.leadingAnchor.constraint(equalTo: reviewsCardView.leadingAnchor, constant: 16),
@@ -236,14 +227,12 @@ class VetDetailsViewController: UIViewController {
             reviewsStack.topAnchor.constraint(equalTo: headerStack.bottomAnchor, constant: 16),
             reviewsStack.leadingAnchor.constraint(equalTo: reviewsCardView.leadingAnchor, constant: 16),
             reviewsStack.trailingAnchor.constraint(equalTo: reviewsCardView.trailingAnchor, constant: -16),
-            // Optional: Pin bottom if you want card to grow (requires removing fixed height)
              reviewsStack.bottomAnchor.constraint(lessThanOrEqualTo: reviewsCardView.bottomAnchor, constant: -16)
         ])
     }
     
     // MARK: - Programmatic Layout Constraints
     private func setupConstraints() {
-        // Disable AutoresizingMask for layout views
         [scrollView, contentView, headerView, avatarImageView, nameLabel, ratingLabel, callButton, emailButton, infoCardView, hoursButton, hoursLabel, reviewsCardView].forEach {
             $0?.translatesAutoresizingMaskIntoConstraints = false
         }

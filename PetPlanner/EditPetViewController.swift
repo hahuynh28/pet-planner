@@ -10,10 +10,8 @@ import CoreData
 
 class EditPetViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
 
-    // 1. Data Injection
     var pet: Pet!
 
-    // Outlets (Same as Add Pet)
     @IBOutlet weak var petImageView: UIImageView!
     @IBOutlet weak var nameField: UITextField!
     @IBOutlet weak var breedField: UITextField!
@@ -49,16 +47,14 @@ class EditPetViewController: UIViewController, UIImagePickerControllerDelegate, 
     }
     
     func populateData() {
-        // 1. Fill Text
         nameField.text = pet.name
         breedField.text = pet.breed
         
         if let dob = pet.dob {
             datePicker.date = dob
-            dateChanged() // Updates the text field
+            dateChanged()
         }
         
-        // 2. Fill Image
         if let imgName = pet.imageName {
             if let assetImage = UIImage(named: imgName) {
                 petImageView.image = assetImage
@@ -66,7 +62,7 @@ class EditPetViewController: UIViewController, UIImagePickerControllerDelegate, 
                 let filename = getDocumentsDirectory().appendingPathComponent(imgName)
                 if let diskImage = UIImage(contentsOfFile: filename.path) {
                     petImageView.image = diskImage
-                    petImageView.contentMode = .scaleAspectFill // Ensure it looks good
+                    petImageView.contentMode = .scaleAspectFill
                 } else {
                     // Fallback if file missing
                     petImageView.image = UIImage(systemName: "pawprint.circle.fill")
@@ -84,7 +80,7 @@ class EditPetViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         let context = CoreDataStack.shared.context
         
-        // UPDATE existing object (Don't create new)
+        // UPDATE existing object
         pet.name = name
         pet.breed = breedField.text
         pet.dob = datePicker.date
@@ -107,7 +103,6 @@ class EditPetViewController: UIViewController, UIImagePickerControllerDelegate, 
     func setupUI() {
         petImageView.layer.cornerRadius = 60
         petImageView.clipsToBounds = true
-        // Note: contentMode is set in populateData based on image availability
 //        petImageView.tintColor = .systemGray3
 //        petImageView.backgroundColor = .systemGray6
         

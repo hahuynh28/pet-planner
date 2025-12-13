@@ -118,7 +118,6 @@ class FinderViewController: UIViewController, MKMapViewDelegate, CLLocationManag
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         guard let annotation = view.annotation, let title = annotation.title else { return }
         
-        // Find the clinic object that matches the pin title
         if let foundClinic = VetClinic.sharedClinics.first(where: { $0.name == title }) {
             self.selectedClinic = foundClinic
             performSegue(withIdentifier: "showMapDetail", sender: nil)
@@ -145,23 +144,18 @@ class FinderViewController: UIViewController, MKMapViewDelegate, CLLocationManag
     
     // MARK: - Location Manager Delegate
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        // 1. Get the most recent location
         guard let location = locations.last else { return }
         
-        // 2. Use Geocoder to turn coordinates into a City Name
         let geocoder = CLGeocoder()
         geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
             
-            // Check for errors or empty data
             guard let self = self,
                   let placemark = placemarks?.first,
                   error == nil else { return }
             
-            // 3. Extract City and State/Province
             let city = placemark.locality ?? "Unknown"
             let region = placemark.administrativeArea ?? "" // e.g., "ON" or "CA"
             
-            // 4. Update the Label on the Main Thread
             DispatchQueue.main.async {
                 if region.isEmpty {
                     self.locationLabel.text = city

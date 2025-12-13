@@ -29,12 +29,10 @@ extension UITextField {
         self.layer.masksToBounds = true
         self.backgroundColor = .white
         
-        // Add left padding so text isn't stuck to the edge
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: self.frame.height))
         self.leftView = paddingView
         self.leftViewMode = .always
         
-        // Force height constraint to 50pt to match Figma
         self.translatesAutoresizingMaskIntoConstraints = false
         self.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }

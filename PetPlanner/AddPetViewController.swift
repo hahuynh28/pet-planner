@@ -48,10 +48,8 @@ class AddPetViewController: UIViewController, UIImagePickerControllerDelegate, U
     // MARK: - Setup UI
     func setupUI() {
         // Image Style
-        petImageView.layer.cornerRadius = 30 // Half of the 60pt size
+        petImageView.layer.cornerRadius = 30
         petImageView.clipsToBounds = true
-        // Use a placeholder symbol & style it
-//        petImageView.image = UIImage(systemName: "camera.fill")
         petImageView.tintColor = .systemGray3
         petImageView.backgroundColor = .systemGray6
         petImageView.contentMode = .center

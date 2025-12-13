@@ -62,7 +62,6 @@ class FinderSearchViewController: UIViewController, UITextFieldDelegate, CLLocat
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         self.userLocation = location
-        // Refresh cards to show new distance
         renderCards()
     }
     
@@ -88,12 +87,10 @@ class FinderSearchViewController: UIViewController, UITextFieldDelegate, CLLocat
         let text = searchTextField.text?.lowercased() ?? ""
         
         filteredClinics = VetClinic.sharedClinics.filter { clinic in
-            // 1. Check Search Text
             let matchesText = text.isEmpty ||
                               clinic.name.lowercased().contains(text) ||
                               clinic.address.lowercased().contains(text)
             
-            // 2. Check Button Filter
             let matchesCategory: Bool
             switch activeFilter {
             case .all:
@@ -101,7 +98,6 @@ class FinderSearchViewController: UIViewController, UITextFieldDelegate, CLLocat
             case .emergency:
                 matchesCategory = clinic.services.contains("Emergency")
             case .specialty:
-                // Matches keywords for "Specialty" services
                 matchesCategory = clinic.services.contains("Surgery") ||
                                   clinic.services.contains("Dentistry") ||
                                   clinic.services.contains("Feline") ||
@@ -156,7 +152,6 @@ class FinderSearchViewController: UIViewController, UITextFieldDelegate, CLLocat
         clinicListStackView.spacing = 16
         
         if filteredClinics.isEmpty {
-            // Optional: Show a "No Results" label
             let label = UILabel()
             label.text = "No clinics found."
             label.textAlignment = .center

@@ -10,13 +10,13 @@ import CoreData
 
 class PetDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
-    var pet: Pet! // Data injected from Dashboard
+    var pet: Pet!
 
 //    @IBOutlet weak var headerView: UIView!
     @IBOutlet weak var petImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var breedLabel: UILabel!
-    @IBOutlet weak var ageLabel: UILabel! // "4 years old"
+    @IBOutlet weak var ageLabel: UILabel!
     
     @IBOutlet weak var deleteButton: UIButton!
     @IBOutlet weak var editButton: UIButton!
@@ -37,14 +37,12 @@ class PetDetailsViewController: UIViewController, UITableViewDataSource, UITable
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // Show Nav Bar so we have a "Back" button
         navigationController?.setNavigationBarHidden(false, animated: animated)
         populateData() // Refresh in case we edited the pet
     }
     
     func setupUI() {
-        // Style the image
-        petImageView.layer.cornerRadius = 60 // Assuming 120x120 size
+        petImageView.layer.cornerRadius = 60
         petImageView.layer.borderWidth = 4
         petImageView.layer.borderColor = UIColor.white.cgColor
         petImageView.clipsToBounds = true
@@ -64,7 +62,6 @@ class PetDetailsViewController: UIViewController, UITableViewDataSource, UITable
         nameLabel.text = pet.name
         breedLabel.text = pet.breed ?? "Unknown Breed"
         
-        // Calculate Age (Optional logic)
         if let dob = pet.dob {
             let ageComponents = Calendar.current.dateComponents([.year], from: dob, to: Date())
             let years = ageComponents.year ?? 0
@@ -75,16 +72,13 @@ class PetDetailsViewController: UIViewController, UITableViewDataSource, UITable
         
         // Image Logic
         if let imgName = pet.imageName {
-            // 1. Try Asset Catalog (for dummy data like "milo-avatar")
             if let assetImage = UIImage(named: imgName) {
                 petImageView.image = assetImage
             } else {
-                // 2. Try Documents Directory (for user uploads)
                 let filename = getDocumentsDirectory().appendingPathComponent(imgName)
                 if let diskImage = UIImage(contentsOfFile: filename.path) {
                     petImageView.image = diskImage
                 } else {
-                    // 3. File not found anywhere
                     petImageView.image = UIImage(systemName: "pawprint.circle.fill")
                 }
             }
@@ -129,14 +123,13 @@ class PetDetailsViewController: UIViewController, UITableViewDataSource, UITable
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // REUSE the "AppointmentCell" logic!
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "AppointmentCell", for: indexPath) as? AppointmentCell else {
             return UITableViewCell()
         }
 
         let appt = appointments[indexPath.row]
         cell.configure(with: appt)
-        cell.backgroundColor = .clear // Important for shadow
+        cell.backgroundColor = .clear
 
         return cell
     }

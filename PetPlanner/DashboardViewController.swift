@@ -49,7 +49,7 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
         alertsButton.makeRound(radius: 12)
         searchButton.applyShadow(opacity: 0.2, y: 3, blur: 6)
         searchButton.makeRound(radius: 12)
-        tableView.separatorStyle = .none  // Hides lines so cards look floating
+        tableView.separatorStyle = .none
         
         createDummyPetsIfNeeded()
     }
@@ -93,7 +93,7 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
         let cell = tableView.dequeueReusableCell(withIdentifier: "EventCell", for: indexPath) as! EventCell
         
         let appointment = appointments[indexPath.row]
-        cell.configure(with: appointment) // Now passes the Core Data object
+        cell.configure(with: appointment)
         
         cell.backgroundColor = .clear
         cell.selectionStyle = .none
@@ -121,11 +121,8 @@ class DashboardViewController: UIViewController, UITableViewDataSource, UITableV
             collectionView.reloadData()
         } catch { print("Error fetching pets: \(error)") }
         
-        // 2. Fetch Appointments
         do {
             let request: NSFetchRequest<Appointment> = Appointment.fetchRequest()
-            // Optional: Sort by creation or date string (Primitive sort)
-            // Ideally we would sort by a real Date object, but this works for now
             appointments = try context.fetch(request)
             tableView.reloadData()
         } catch { print("Error fetching appointments: \(error)") }

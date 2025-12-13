@@ -31,8 +31,6 @@ class AppointmentCell: UITableViewCell {
         cardView.backgroundColor = .white
         cardView.applyShadow(color: .black, opacity: 0.1, x: 0, y: 2, blur: 6)
         
-        // NEW: Round the image view
-        // (We assume the image view will be 60x60 in storyboard)
         petImageView.layer.cornerRadius = 30
         petImageView.clipsToBounds = true
         petImageView.contentMode = .scaleAspectFill
@@ -42,7 +40,7 @@ class AppointmentCell: UITableViewCell {
         let name = appointment.petName ?? "Unknown Pet"
         petNameLabel.text = name
         
-        petImageView.image = nil // Clear old image
+        petImageView.image = nil
         petImageView.tintColor = UIColor(named: "BrandPurple")
         petImageView.backgroundColor = .systemGray6
         petImageView.contentMode = .scaleAspectFill

@@ -14,7 +14,6 @@ class AppointmentsViewController: UIViewController {
     @IBOutlet weak var searchButton: UIButton!
     @IBOutlet weak var alertsButton: UIButton!
 
-    // data source from Core Data
     var appointments: [Appointment] = []
 
     override func viewDidLoad() {
@@ -65,12 +64,9 @@ class AppointmentsViewController: UIViewController {
         }
         
         if segue.identifier == "showDetails",
-           // 2. Get the destination controller
            let destination = segue.destination as? AppointmentDetailsViewController,
-           // 3. Get the index of the row the user tapped
            let indexPath = tableView.indexPathForSelectedRow {
             
-            // 4. Pass the data object to the next screen
             destination.appointment = appointments[indexPath.row]
         }
     }
@@ -86,19 +82,14 @@ extension AppointmentsViewController: UITableViewDataSource, UITableViewDelegate
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        // 1. Cast the cell to your custom class 'AppointmentCell'
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "AppointmentCell", for: indexPath) as? AppointmentCell else {
             return UITableViewCell()
         }
 
-        // 2. Get the data
         let appt = appointments[indexPath.row]
         
-        // 3. Configure the CUSTOM card (Pet, Date, Clinic)
-        // This calls the code we wrote in AppointmentCell.swift
         cell.configure(with: appt)
 
-        // 4. Important: Ensure the cell background is clear so the card shadow shows
         cell.backgroundColor = .clear
         
         return cell

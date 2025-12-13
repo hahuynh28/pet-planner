@@ -8,7 +8,6 @@
 import Foundation
 import CoreLocation
 
-// Simple in-memory model for a pet
 //struct Pet {
 //    let name: String
 //    let imageName: String
@@ -20,7 +19,6 @@ struct Review {
     let text: String
 }
 
-// Simple in-memory model for a vet clinic
 struct VetClinic {
     let name: String
     let services: String

@@ -10,12 +10,12 @@ import CoreData
 
 class AppointmentDetailsViewController: UIViewController {
 
-    var appointment: Appointment! // Data injected from the list
+    var appointment: Appointment!
 
     // Header
     @IBOutlet weak var petImageView: UIImageView!
     @IBOutlet weak var petNameLabel: UILabel!
-    @IBOutlet weak var breedLabel: UILabel! // (Optional, we might just use "Dog/Cat")
+    @IBOutlet weak var breedLabel: UILabel!
 
     // Cards
     @IBOutlet weak var dateTimeCard: UIView!
@@ -60,19 +60,16 @@ class AppointmentDetailsViewController: UIViewController {
     }
     
     func setupStyle() {
-        // 1. Style the Pet Image
         petImageView.layer.cornerRadius = 30
         petImageView.clipsToBounds = true
         petImageView.contentMode = .scaleAspectFill
         
-        // 2. Style the Cards (White with Shadow)
         [dateTimeCard, infoCard].forEach { card in
             card?.backgroundColor = .white
             card?.layer.cornerRadius = 12
             card?.applyShadow(color: .black, opacity: 0.1, x: 0, y: 0, blur: 3)
         }
         
-        // 3. Style Buttons (Outline Style)
         styleOutlineButton(editButton, color: UIColor(named: "BrandPurple") ?? .systemBlue)
         styleOutlineButton(deleteButton, color: .systemRed)
     }
@@ -80,7 +77,7 @@ class AppointmentDetailsViewController: UIViewController {
     func styleOutlineButton(_ button: UIButton, color: UIColor) {
         button.layer.borderWidth = 1.5
         button.layer.borderColor = color.cgColor
-        button.layer.cornerRadius = 12 // Match card radius
+        button.layer.cornerRadius = 12
         button.setTitleColor(color, for: .normal)
         button.backgroundColor = .clear
     }
